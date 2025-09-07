@@ -3,6 +3,7 @@ body {
     font-family: Boathouse, Segoe UI, Helvetica Neue, -apple-system, system-ui, BlinkMacSystemFont, Roboto, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
     font-size: 14px;
     line-height: 18px;
+    background-color: rgb(250, 250, 250);
 }
 
 h1 {
@@ -31,8 +32,13 @@ form {
     padding: 20px;
 }
 
+.routeDisplay {
+    padding: 20px;
+    background-color: white;
+    width: fit-content;    
+}
+
 #map {
     height: 400px;
     width: 600px;
-    margin-top: 20px;
 }

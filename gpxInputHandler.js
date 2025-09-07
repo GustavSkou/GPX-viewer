@@ -3,23 +3,27 @@ const _MINUTE_TO_MS = 60*1000;
 const _SECOND_TO_MS = 1000;
 
 document.getElementById('gpxFile').addEventListener('change', function(event) {
+    var map = createMap();
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const gpxContent = e.target.result;
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(gpxContent, "application/xml");
-            const track = xmlDoc.getElementsByTagName('trk')[0];
-
+            const track = parseGPX(e)
             const route = GetGPXRouteData(track);
             console.log(route.distance + " " + route.elevation + " " + route.averageSpeed + " " + route.time);
-            drawRoute(route.routePts);
+            drawRoute(route.routePts, map);
         };
         reader.readAsText(file);
-        
     }
 });
+
+function parseGPX(fileReader)
+{
+    const gpxContent = fileReader.target.result;
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(gpxContent, "application/xml");
+    return track = xmlDoc.getElementsByTagName('trk')[0];
+}
 
 function GetGPXRouteData(track)
 {
@@ -103,24 +107,24 @@ function formatDuration( milliseconds )
     ).join(":");
 }
 
-function drawRoute( latLonArray )
+function drawRoute( latLonArray, map )
 {
     var polygon = L.polygon( latLonArray, {
         fillOpacity: 0.0,
         color: "red"
     } ).addTo(map);
-    setViewToRoute(polygon);
-    setStartPoint( latLonArray );
-    setEndPoint( latLonArray );
+    setViewToRoute(polygon, map);
+    setStartPoint( latLonArray, map );
+    setEndPoint( latLonArray, map );
 }
 
-function setViewToRoute ( polygon )
+function setViewToRoute ( polygon, map )
 {
     map.setView(polygon.getCenter());
     map.fitBounds(polygon.getBounds());
 }
 
-function setStartPoint( latLonArray )
+function setStartPoint( latLonArray, map )
 {
     L.circle(latLonArray[0], 2, {
         color: "green",
@@ -129,7 +133,7 @@ function setStartPoint( latLonArray )
     } ).addTo(map);
 }
 
-function setEndPoint( latLonArray )
+function setEndPoint( latLonArray, map )
 {
     L.circle(latLonArray[latLonArray.length - 1], 2, {
         color: "blue",
