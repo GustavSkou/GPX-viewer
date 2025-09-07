@@ -2,7 +2,11 @@ const _HOUR_MS = 60*60*1000;
 const _MINUTE_TO_MS = 60*1000;
 const _SECOND_TO_MS = 1000;
 
-document.getElementById('gpxFile').addEventListener('change', function(event) {
+document.getElementById('gpxFileInput').addEventListener('change', function(event) {
+    
+    if (window.maps[0] != null)
+        window.maps[0].remove();
+
     var map = createMap();
     const file = event.target.files[0];
     if (file) {
@@ -10,12 +14,46 @@ document.getElementById('gpxFile').addEventListener('change', function(event) {
         reader.onload = function(e) {
             const track = parseGPX(e)
             const route = GetGPXRouteData(track);
-            console.log(route.distance + " " + route.elevation + " " + route.averageSpeed + " " + route.time);
             drawRoute(route.routePts, map);
+            setInfoElements(route);
         };
         reader.readAsText(file);
     }
 });
+
+function setInfoElements(route)
+{
+    const nameElement = document.getElementById("name");
+    const distElement = document.getElementById("distance");
+    const elevGainElement = document.getElementById("elev");
+    const speedElement = document.getElementById("speed");
+    const timeElement = document.getElementById("time");
+
+    const distanceLi = document.getElementById("distance_li");
+    const elevGainLi = document.getElementById("elev_li");
+    const speedLi = document.getElementById("speed_li");
+    const timeLi = document.getElementById("time_li");
+
+    nameElement.textContent = route.name;
+    distElement.textContent = route.distance;
+    elevGainElement.textContent = route.elevation;
+    speedElement.textContent = route.averageSpeed;
+    timeElement.textContent = route.time;
+
+    if (route.distance >= 0)
+        distanceLi.style.display = "block";
+
+    if (route.elevation >= 0)   
+        elevGainLi.style.display = "block";
+
+    if (route.averageSpeed > 0)
+        speedLi.style.display = "block";
+
+    if (route.time != "")
+        timeLi.style.display = "block";
+
+
+}
 
 function parseGPX(fileReader)
 {
@@ -29,10 +67,9 @@ function GetGPXRouteData(track)
 {
     const trackPoints = track.getElementsByTagName('trkpt'); // contains only the trkpt elements
 
-    const route = 
-    {
-        name: track.getElementsByTagName('name')[0].textContent,
-        type: track.getElementsByTagName('type')[0].textContent, 
+    const route = {
+        name: track.getElementsByTagName('name')[0] != null ? track.getElementsByTagName('name')[0].textContent: "",
+        type: track.getElementsByTagName('type')[0] != null ? track.getElementsByTagName('type')[0].textContent : "", 
         distance:0, 
         elevation:0, 
         time:"", 
@@ -45,39 +82,51 @@ function GetGPXRouteData(track)
 
     for (let i = 0; i < trackPoints.length; i++)
     {
-        if (i == 0)
+        if (i == 0) // setup first track points
         {
             lat1 = trackPoints[0].getAttribute('lat');
             lon1 = trackPoints[0].getAttribute('lon');
             ele1 = trackPoints[0].getElementsByTagName('ele')[0].textContent;
-            time1 = new Date(trackPoints[0].getElementsByTagName('time')[0].textContent);
+
+            if (trackPoints[i].getElementsByTagName('time')[0] != null)
+                time1 = new Date(trackPoints[0].getElementsByTagName('time')[0].textContent);
         }
         else
         {
             let lat2 = trackPoints[i].getAttribute('lat');
             let lon2 = trackPoints[i].getAttribute('lon');
             let ele2 = trackPoints[i].getElementsByTagName('ele')[0].textContent;
-            let time2 = new Date(trackPoints[i].getElementsByTagName('time')[0].textContent);
 
             let distanceBetweenPoints = Distance(lat1, lon1, lat2, lon2); // km
-            let speedBetweenPoints = distanceBetweenPoints / (time2.getTime()-time1.getTime()) * 3600000
+
+            if (trackPoints[i].getElementsByTagName('time')[0] != null)
+            {
+                let time2 = new Date(trackPoints[i].getElementsByTagName('time')[0].textContent);
+                let speedBetweenPoints = distanceBetweenPoints / (time2.getTime()-time1.getTime()) * 3600000
+                totalSpeed += speedBetweenPoints;
+                route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
+                time1 = time2;
+            }
+
             route.elevation += ele2 > ele1 ? ele2 - ele1 : 0; // if the elevation between two pts is positive we add it to the routes total elevation
-
-            totalSpeed += speedBetweenPoints;
             route.distance += distanceBetweenPoints;
-            route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
-
+            
             lat1 = lat2;
             lon1 = lon2;
             ele1 = ele2;
-            time1 = time2;
         }
         route.routePts.push( [lat1, lon1] );
     }    
+    
     route.averageSpeed = totalSpeed / trackPoints.length - 1;
+
+    if (trackPoints[0].getElementsByTagName('time')[0] != null || trackPoints[trackPoints.length - 1].getElementsByTagName('time')[0] != null)
     route.time = formatDuration ( 
         new Date(trackPoints[trackPoints.length - 1].getElementsByTagName('time')[0].textContent).getTime() 
         -new Date(trackPoints[0].getElementsByTagName('time')[0].textContent).getTime() );
+    
+    console.log(route.distance + " " + route.elevation + " " + route.averageSpeed + " " + route.time);
+    
     return route;
 }
 
@@ -105,38 +154,4 @@ function formatDuration( milliseconds )
         minutes.toString().padEnd(2, "0"),
         seconds.toString().padStart(2, "0")
     ).join(":");
-}
-
-function drawRoute( latLonArray, map )
-{
-    var polygon = L.polygon( latLonArray, {
-        fillOpacity: 0.0,
-        color: "red"
-    } ).addTo(map);
-    setViewToRoute(polygon, map);
-    setStartPoint( latLonArray, map );
-    setEndPoint( latLonArray, map );
-}
-
-function setViewToRoute ( polygon, map )
-{
-    map.setView(polygon.getCenter());
-    map.fitBounds(polygon.getBounds());
-}
-
-function setStartPoint( latLonArray, map )
-{
-    L.circle(latLonArray[0], 2, {
-        color: "green",
-        fillOpacity: 1
-
-    } ).addTo(map);
-}
-
-function setEndPoint( latLonArray, map )
-{
-    L.circle(latLonArray[latLonArray.length - 1], 2, {
-        color: "blue",
-        fillOpacity: 1
-    } ).addTo(map);
 }

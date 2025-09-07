@@ -42,3 +42,13 @@ form {
     height: 400px;
     width: 600px;
 }
+
+.infoPanel {
+    display: flex;
+}
+
+.infoPanel> li {
+    padding-right: 10px;
+    list-style-type: none;
+    display: none;
+}
