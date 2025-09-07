@@ -2,7 +2,6 @@ const _HOUR_MS = 60*60*1000;
 const _MINUTE_TO_MS = 60*1000;
 const _SECOND_TO_MS = 1000;
 
-
 document.getElementById('gpxFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
@@ -13,10 +12,12 @@ document.getElementById('gpxFile').addEventListener('change', function(event) {
             const xmlDoc = parser.parseFromString(gpxContent, "application/xml");
             const track = xmlDoc.getElementsByTagName('trk')[0];
 
-            route = GetGPXRouteData(track);
+            const route = GetGPXRouteData(track);
             console.log(route.distance + " " + route.elevation + " " + route.averageSpeed + " " + route.time);
+            drawRoute(route.routePts);
         };
         reader.readAsText(file);
+        
     }
 });
 
@@ -32,42 +33,42 @@ function GetGPXRouteData(track)
         elevation:0, 
         time:"", 
         averageSpeed:0, 
-        topSpeed:0
+        topSpeed:0,
+        routePts:new Array()
     }
-
-    let lat1 = trackPoints[0].getAttribute('lat');
-    let lon1 = trackPoints[0].getAttribute('lon');
-    let ele1 = trackPoints[0].getElementsByTagName('ele')[0].textContent;
-    let time1 = new Date(trackPoints[0].getElementsByTagName('time')[0].textContent);
-
-
-    let lat2 = 0;
-    let lon2 = 0;
-    let ele2 = 0;
-    let time2 = new Date();
 
     let totalSpeed = 0;
 
-    for (let i = 1; i < trackPoints.length; i++)
+    for (let i = 0; i < trackPoints.length; i++)
     {
-        lat2 = trackPoints[i].getAttribute('lat');
-        lon2 = trackPoints[i].getAttribute('lon');
-        ele2 = trackPoints[i].getElementsByTagName('ele')[0].textContent;
-        time2 = new Date(trackPoints[i].getElementsByTagName('time')[0].textContent);
+        if (i == 0)
+        {
+            lat1 = trackPoints[0].getAttribute('lat');
+            lon1 = trackPoints[0].getAttribute('lon');
+            ele1 = trackPoints[0].getElementsByTagName('ele')[0].textContent;
+            time1 = new Date(trackPoints[0].getElementsByTagName('time')[0].textContent);
+        }
+        else
+        {
+            let lat2 = trackPoints[i].getAttribute('lat');
+            let lon2 = trackPoints[i].getAttribute('lon');
+            let ele2 = trackPoints[i].getElementsByTagName('ele')[0].textContent;
+            let time2 = new Date(trackPoints[i].getElementsByTagName('time')[0].textContent);
 
-        let distanceBetweenPoints = Distance(lat1, lon1, lat2, lon2); // km
-        let speedBetweenPoints = distanceBetweenPoints / (time2.getTime()-time1.getTime()) * 3600000
-        route.elevation += ele2 > ele1 ? ele2 - ele1 : 0; // if the elevation between two pts is positive we add it to the routes total elevation
+            let distanceBetweenPoints = Distance(lat1, lon1, lat2, lon2); // km
+            let speedBetweenPoints = distanceBetweenPoints / (time2.getTime()-time1.getTime()) * 3600000
+            route.elevation += ele2 > ele1 ? ele2 - ele1 : 0; // if the elevation between two pts is positive we add it to the routes total elevation
 
-        totalSpeed += speedBetweenPoints;
-        route.distance += distanceBetweenPoints;
-        route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
+            totalSpeed += speedBetweenPoints;
+            route.distance += distanceBetweenPoints;
+            route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
 
-
-        lat1 = lat2;
-        lon1 = lon2;
-        ele1 = ele2;
-        time1 = time2;
+            lat1 = lat2;
+            lon1 = lon2;
+            ele1 = ele2;
+            time1 = time2;
+        }
+        route.routePts.push( [lat1, lon1] );
     }    
     route.averageSpeed = totalSpeed / trackPoints.length - 1;
     route.time = formatDuration ( 
@@ -75,7 +76,6 @@ function GetGPXRouteData(track)
         -new Date(trackPoints[0].getElementsByTagName('time')[0].textContent).getTime() );
     return route;
 }
-
 
 function Distance(lat1, lon1, lat2, lon2) { // returns distance between two points in km
     const r = 6371; // km
@@ -101,4 +101,38 @@ function formatDuration( milliseconds )
         minutes.toString().padEnd(2, "0"),
         seconds.toString().padStart(2, "0")
     ).join(":");
+}
+
+function drawRoute( latLonArray )
+{
+    var polygon = L.polygon( latLonArray, {
+        fillOpacity: 0.0,
+        color: "red"
+    } ).addTo(map);
+    setViewToRoute(polygon);
+    setStartPoint( latLonArray );
+    setEndPoint( latLonArray );
+}
+
+function setViewToRoute ( polygon )
+{
+    map.setView(polygon.getCenter());
+    map.fitBounds(polygon.getBounds());
+}
+
+function setStartPoint( latLonArray )
+{
+    L.circle(latLonArray[0], 2, {
+        color: "green",
+        fillOpacity: 1
+
+    } ).addTo(map);
+}
+
+function setEndPoint( latLonArray )
+{
+    L.circle(latLonArray[latLonArray.length - 1], 2, {
+        color: "blue",
+        fillOpacity: 1
+    } ).addTo(map);
 }
