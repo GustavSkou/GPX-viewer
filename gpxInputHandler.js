@@ -1,3 +1,8 @@
+const _HOUR_MS = 60*60*1000;
+const _MINUTE_TO_MS = 60*1000;
+const _SECOND_TO_MS = 1000;
+
+
 document.getElementById('gpxFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
@@ -85,11 +90,11 @@ function Distance(lat1, lon1, lat2, lon2) { // returns distance between two poin
 
 function formatDuration( milliseconds )
 {
-    const hours = milliseconds / (60*60*1000) - milliseconds / (60*60*1000) % 1;
-    milliseconds -= hours * 60*60*1000;
-    const minutes = milliseconds / (60*1000) - milliseconds / (60*1000) % 1;
-    milliseconds -= minutes*60*1000;
-    const seconds = milliseconds / 1000;
+    const hours = milliseconds / _HOUR_MS - milliseconds / _HOUR_MS % 1;
+    milliseconds -= hours * _HOUR_MS;
+    const minutes = milliseconds / _MINUTE_TO_MS - milliseconds / _MINUTE_TO_MS % 1;
+    milliseconds -= minutes*_MINUTE_TO_MS;
+    const seconds = milliseconds / _SECOND_TO_MS;
 
     return String(hours + ":" + minutes + ":" + seconds);
 }
