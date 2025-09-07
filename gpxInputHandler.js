@@ -96,5 +96,9 @@ function formatDuration( milliseconds )
     milliseconds -= minutes*_MINUTE_TO_MS;
     const seconds = milliseconds / _SECOND_TO_MS;
 
-    return String(hours + ":" + minutes + ":" + seconds);
+    return new Array (
+        hours.toString().padStart(2, "0"), 
+        minutes.toString().padEnd(2, "0"),
+        seconds.toString().padStart(2, "0")
+    ).join(":");
 }
