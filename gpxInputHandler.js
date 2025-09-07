@@ -43,15 +43,23 @@ function setInfoElements(route)
 
     if (route.distance >= 0)
         distanceLi.style.display = "block";
+    else
+        distanceLi.style.display = "none";
 
     if (route.elevationGain >= 0)   
         elevGainLi.style.display = "block";
+    else
+        elevGainLi.style.display = "none";
 
     if (route.averageSpeed > 0)
         speedLi.style.display = "block";
+    else
+        speedLi.style.display = "none";
 
     if (route.time != "")
         timeLi.style.display = "block";
+    else
+        timeLi.style.display = "none";
 }
 
 function parseGPX(fileReader)
