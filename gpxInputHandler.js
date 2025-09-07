@@ -7,6 +7,7 @@ document.getElementById('gpxFileInput').addEventListener('change', function(even
     if (window.maps[0] != null)
         window.maps[0].remove();
 
+    document.getElementById("routeDisplay").style.display = "block"
     var map = createMap();
     const file = event.target.files[0];
     if (file) {
@@ -35,15 +36,15 @@ function setInfoElements(route)
     const timeLi = document.getElementById("time_li");
 
     nameElement.textContent = route.name;
-    distElement.textContent = route.distance;
-    elevGainElement.textContent = route.elevation;
-    speedElement.textContent = route.averageSpeed;
+    distElement.textContent = route.distanceString;
+    elevGainElement.textContent = route.elevationGainString;
+    speedElement.textContent = route.averageSpeedString;
     timeElement.textContent = route.time;
 
     if (route.distance >= 0)
         distanceLi.style.display = "block";
 
-    if (route.elevation >= 0)   
+    if (route.elevationGain >= 0)   
         elevGainLi.style.display = "block";
 
     if (route.averageSpeed > 0)
@@ -51,8 +52,6 @@ function setInfoElements(route)
 
     if (route.time != "")
         timeLi.style.display = "block";
-
-
 }
 
 function parseGPX(fileReader)
@@ -67,17 +66,10 @@ function GetGPXRouteData(track)
 {
     const trackPoints = track.getElementsByTagName('trkpt'); // contains only the trkpt elements
 
-    const route = {
-        name: track.getElementsByTagName('name')[0] != null ? track.getElementsByTagName('name')[0].textContent: "",
-        type: track.getElementsByTagName('type')[0] != null ? track.getElementsByTagName('type')[0].textContent : "", 
-        distance:0, 
-        elevation:0, 
-        time:"", 
-        averageSpeed:0, 
-        topSpeed:0,
-        routePts:new Array()
-    }
-
+    const route = new Route();
+    route.name = track.getElementsByTagName('name')[0] != null ? track.getElementsByTagName('name')[0].textContent : "";
+    route.type = track.getElementsByTagName('type')[0] != null ? track.getElementsByTagName('type')[0].textContent : "";
+    
     let totalSpeed = 0;
 
     for (let i = 0; i < trackPoints.length; i++)
@@ -108,7 +100,7 @@ function GetGPXRouteData(track)
                 time1 = time2;
             }
 
-            route.elevation += ele2 > ele1 ? ele2 - ele1 : 0; // if the elevation between two pts is positive we add it to the routes total elevation
+            route.elevationGain += ele2 > ele1 ? ele2 - ele1 : 0; // if the elevationGain between two pts is positive we add it to the routes total elevationGain
             route.distance += distanceBetweenPoints;
             
             lat1 = lat2;
@@ -125,7 +117,7 @@ function GetGPXRouteData(track)
         new Date(trackPoints[trackPoints.length - 1].getElementsByTagName('time')[0].textContent).getTime() 
         -new Date(trackPoints[0].getElementsByTagName('time')[0].textContent).getTime() );
     
-    console.log(route.distance + " " + route.elevation + " " + route.averageSpeed + " " + route.time);
+    console.log(route.distance + " " + route.elevationGain + " " + route.averageSpeed + " " + route.time);
     
     return route;
 }
