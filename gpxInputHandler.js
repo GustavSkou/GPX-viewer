@@ -25,7 +25,7 @@ function GetGPXRouteData(track)
         type: track.getElementsByTagName('type')[0].textContent, 
         distance:0, 
         elevation:0, 
-        time:0, 
+        time:"", 
         averageSpeed:0, 
         topSpeed:0
     }
@@ -65,11 +65,14 @@ function GetGPXRouteData(track)
         time1 = time2;
     }    
     route.averageSpeed = totalSpeed / trackPoints.length - 1;
-    route.time = ( new Date(trackPoints[trackPoints.length - 1].getElementsByTagName('time')[0].textContent) - new Date(trackPoints[0].getElementsByTagName('time')[0].textContent) ) / 1000 /60 /60;
+    route.time = formatDuration ( 
+        new Date(trackPoints[trackPoints.length - 1].getElementsByTagName('time')[0].textContent).getTime() 
+        -new Date(trackPoints[0].getElementsByTagName('time')[0].textContent).getTime() );
     return route;
 }
 
-function Distance(lat1, lon1, lat2, lon2) { // returns distance in km
+
+function Distance(lat1, lon1, lat2, lon2) { // returns distance between two points in km
     const r = 6371; // km
     const p = Math.PI / 180;
   
@@ -78,4 +81,15 @@ function Distance(lat1, lon1, lat2, lon2) { // returns distance in km
                     (1 - Math.cos((lon2 - lon1) * p)) / 2;
   
     return 2 * r * Math.asin(Math.sqrt(a));
+}
+
+function formatDuration( milliseconds )
+{
+    const hours = milliseconds / (60*60*1000) - milliseconds / (60*60*1000) % 1;
+    milliseconds -= hours * 60*60*1000;
+    const minutes = milliseconds / (60*1000) - milliseconds / (60*1000) % 1;
+    milliseconds -= minutes*60*1000;
+    const seconds = milliseconds / 1000;
+
+    return String(hours + ":" + minutes + ":" + seconds);
 }
