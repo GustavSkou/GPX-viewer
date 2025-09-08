@@ -11,7 +11,7 @@
 
   <body>
     <div class="container">
-      <div>
+      <div class="uploadMenu">
         <h1>Upload activity</h1>
         <form id="gpxForm">
           <input title="gpxInput" type="file" id="gpxFileInput" accept=".gpx" />
@@ -20,32 +20,38 @@
         <p>Works for .gpx files</p>
       </div>
 
-      <div class="routeDisplay" id="routeDisplay">
-        <h2 id="name"></h2>
-        <ul class="infoPanel">
-          <li id="distance_li">
-            <p>Distance</p>
-            <div id="distance"></div>
-          </li>
-          <li id="elev_li">
-            <p>Elev gain</p>
-            <div id="elev"></div>
-          </li>
-          <li id="speed_li">
-            <p>Speed</p>
-            <div id="speed"></div>
-          </li>
-          <li id="time_li">
-            <p>Time</p>
-            <div id="time"></div>
-          </li>
-        </ul>
-
-        <div id="map"></div>
+      <div id="routeDisplayList" class="routeDisplayList">
+        
       </div>
-    </div>
+      
+
     <script src="Route.js"></script>
     <script src="mapHandler.js"></script>
     <script src="gpxInputHandler.js"></script>
   </body>
+<template id="routeDisplayTemplate">
+  <div class="routeDisplay" id="routeDisplay">
+    <h2 id="name"></h2>
+    <ul class="infoPanel">
+      <li id="distance_li">
+        <p>Distance</p>
+        <div id="distance"></div>
+      </li>
+      <li id="elev_li">
+        <p>Elev gain</p>
+        <div id="elev"></div>
+      </li>
+      <li id="speed_li">
+        <p>Speed</p>
+        <div id="speed"></div>
+      </li>
+      <li id="time_li">
+        <p>Time</p>
+        <div id="time"></div>
+      </li>
+    </ul>
+    <div id="tempMapId" class="map"></div>
+  </div>
+</template>
 </html>
+

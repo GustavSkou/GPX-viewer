@@ -1,13 +1,13 @@
-window.maps = new Array();
+Window.maps = new Array();
 
-function createMap() {
-  var map = L.map("map").setView([0, 0], 19);
+function createMap(divElementId) {
+  var map = L.map(divElementId).setView([0, 0], 19);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution:
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map);
-  window.maps[0] = map;
+  Window.maps.push(map);
   return map;
 }
 

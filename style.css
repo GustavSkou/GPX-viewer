@@ -39,10 +39,11 @@ form {
   padding: 20px;
   background-color: white;
   width: fit-content;
-  display: none;
+  display: block;
+  margin-bottom: 20px;
 }
 
-#map {
+.map {
   height: 400px;
   width: 600px;
 }
@@ -56,4 +57,11 @@ form {
   padding-right: 10px;
   list-style-type: none;
   display: none;
+}
+.uploadMenu {
+  position: sticky;
+  top: 0;
+  left: 0;
+  height: fit-content;
+  width: fit-content;
 }

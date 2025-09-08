@@ -1,21 +1,21 @@
 document
   .getElementById("gpxFileInput")
   .addEventListener("change", function (event) {
-    if (window.maps[0] != null) window.maps[0].remove();
-
-    document.getElementById("routeDisplay").style.display = "block";
-    var map = createMap();
+    //if (Window.maps[0] != null) Window.maps[0].remove();
+    const routeDisplayElement = getRouteDisplayTemplate();
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function (event) {
         const fileReader = event.target;
         const route = fileToRoute(fileReader.result, file.name);
+        setInfoElements(route, routeDisplayElement);
+        addRouteDisplayElementToList(routeDisplayElement);
+        var map = createMap(`map${Window.maps.length}`);
         const polygon = drawRoute(route.routePts, map);
         setViewToRoute(polygon, map);
         setStartPoint(route.routePts, map);
         setEndPoint(route.routePts, map);
-        setInfoElements(route);
       };
       reader.readAsText(file);
     }
@@ -34,17 +34,17 @@ function fileToRoute(fileContent, fileName) {
   }
 }
 
-function setInfoElements(route) {
-  const nameElement = document.getElementById("name");
-  const distElement = document.getElementById("distance");
-  const elevGainElement = document.getElementById("elev");
-  const speedElement = document.getElementById("speed");
-  const timeElement = document.getElementById("time");
+function setInfoElements(route, parent) {
+  const distanceLi = parent.querySelector("#distance_li");
+  const elevGainLi = parent.querySelector("#elev_li");
+  const speedLi = parent.querySelector("#speed_li");
+  const timeLi = parent.querySelector("#time_li");
 
-  const distanceLi = document.getElementById("distance_li");
-  const elevGainLi = document.getElementById("elev_li");
-  const speedLi = document.getElementById("speed_li");
-  const timeLi = document.getElementById("time_li");
+  const nameElement = parent.querySelector("#name");
+  const distElement = parent.querySelector("#distance");
+  const elevGainElement = parent.querySelector("#elev");
+  const speedElement = parent.querySelector("#speed");
+  const timeElement = parent.querySelector("#time");
 
   nameElement.textContent = route.name;
   distElement.textContent = route.distanceString;
@@ -52,17 +52,10 @@ function setInfoElements(route) {
   speedElement.textContent = route.averageSpeedString;
   timeElement.textContent = route.timeString;
 
-  if (route.distance >= 0) distanceLi.style.display = "block";
-  else distanceLi.style.display = "none";
-
-  if (route.elevationGain >= 0) elevGainLi.style.display = "block";
-  else elevGainLi.style.display = "none";
-
-  if (route.averageSpeed > 0) speedLi.style.display = "block";
-  else speedLi.style.display = "none";
-
-  if (route.timeMS > 0) timeLi.style.display = "block";
-  else timeLi.style.display = "none";
+  distanceLi.style.display = route.distance >= 0 ? "block" : "none";
+  elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
+  speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
+  timeLi.style.display = route.timeMS > 0 ? "block" : "none";
 }
 
 function parseGPXToRoute(file) {
@@ -174,4 +167,15 @@ function Distance(lat1, lon1, lat2, lon2) {
       2;
 
   return 2 * r * Math.asin(Math.sqrt(a));
+}
+
+function getRouteDisplayTemplate() {
+  const template = document.getElementById("routeDisplayTemplate");
+  const clone = template.content.cloneNode(true);
+  clone.querySelector("#tempMapId").id = `map${Window.maps.length}`;
+  return clone;
+}
+
+function addRouteDisplayElementToList(element) {
+  document.getElementById("routeDisplayList").appendChild(element);
 }
