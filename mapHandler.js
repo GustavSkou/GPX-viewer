@@ -12,11 +12,11 @@ function createMap(divElementId) {
 }
 
 function drawRoute(latLonArray, map) {
-  var polygon = L.polygon(latLonArray, {
+  var polyline = L.polyline(latLonArray, {
     fillOpacity: 0.0,
     color: "red",
   }).addTo(map);
-  return polygon;
+  return polyline;
 }
 
 function setViewToRoute(polygon, map) {
