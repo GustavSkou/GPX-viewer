@@ -1,0 +1,5 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.experimentalTernaries": true,
+  "editor.tabSize": 2
+}

@@ -1,55 +1,59 @@
 body {
-    color: #000;
-    font-family: Boathouse, Segoe UI, Helvetica Neue, -apple-system, system-ui, BlinkMacSystemFont, Roboto, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
-    font-size: 14px;
-    line-height: 18px;
-    background-color: rgb(250, 250, 250);
+  color: #000;
+  font-family: Boathouse, Segoe UI, Helvetica Neue, -apple-system, system-ui,
+    BlinkMacSystemFont, Roboto, Arial, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol;
+  font-size: 14px;
+  line-height: 18px;
+  background-color: rgb(250, 250, 250);
 }
 
 h1 {
-    font-size: 34px;
-    font-weight: 600;
-    line-height: 41px;
-    margin-top: 0px;
-    margin-bottom: 7px;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 41px;
+  margin-top: 0px;
+  margin-bottom: 7px;
 }
 p {
-    font-size: small;
-    margin: 0;
+  font-size: small;
+  margin: 0;
 }
 
 form {
-    padding: 20px;
+  padding: 20px;
 }
 
 .container {
-    display: grid;
-    grid-template-columns: 350px auto;
-    background-color: transparent;
-    padding: 10px; }
+  display: grid;
+  grid-template-columns: 350px auto;
+  background-color: transparent;
+  padding: 10px;
+}
 
-.container> div {
-    padding: 20px;
+.container > div {
+  padding: 20px;
 }
 
 .routeDisplay {
-    padding: 20px;
-    background-color: white;
-    width: fit-content;  
-    display: none;  
+  padding: 20px;
+  background-color: white;
+  width: fit-content;
+  display: none;
 }
 
 #map {
-    height: 400px;
-    width: 600px;
+  height: 400px;
+  width: 600px;
 }
 
 .infoPanel {
-    display: flex;
+  display: flex;
+  padding-left: 0px;
 }
 
-.infoPanel> li {
-    padding-right: 10px;
-    list-style-type: none;
-    display: none;
+.infoPanel > li {
+  padding-right: 10px;
+  list-style-type: none;
+  display: none;
 }
