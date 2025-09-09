@@ -11,7 +11,8 @@ class Route {
     timeMS = 0,
     averageSpeed = 0,
     topSpeed = 0,
-    routePts = []
+    routePts = [],
+    routeEleList = []
   ) {
     this.name = name;
     this.type = type;
@@ -21,6 +22,7 @@ class Route {
     this.averageSpeed = averageSpeed;
     this.topSpeed = topSpeed;
     this.routePts = routePts;
+    this.routeEleList = routeEleList
   }
 
   get distanceString() {

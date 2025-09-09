@@ -14,7 +14,7 @@
       <div class="uploadMenu">
         <h1>Upload activity</h1>
         <form id="gpxForm">
-          <input title="gpxInput" type="file" id="gpxFileInput" accept=".gpx" />
+          <input title="fileInput" type="file" id="fileInput" accept=".gpx" />
         </form>
 
         <p>Works for .gpx files</p>
@@ -24,11 +24,15 @@
         
       </div>
       
-
+    <script src="GPXHandler.js"></script> 
     <script src="Route.js"></script>
     <script src="mapHandler.js"></script>
-    <script src="gpxInputHandler.js"></script>
+    <script src="fileInputEventListener.js"></script>
   </body>
+
+
+
+
 <template id="routeDisplayTemplate">
   <div class="routeDisplay" id="routeDisplay">
     <h2 id="name"></h2>
