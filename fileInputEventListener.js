@@ -12,10 +12,10 @@ document
         setInfoElements(route, routeDisplayElement);
         addRouteDisplayElementToList(routeDisplayElement);
         var map = createMap(`map${Window.maps.length}`);
-        const polygon = drawRoute(route.routePts, map, route.routeEleList);
+        const polygon = drawRoute(route.points.latLngs, map, route.points.elevationPts);
         setViewToRoute(polygon, map);
-        setStartPoint(route.routePts, map);
-        setEndPoint(route.routePts, map);
+        setStartPoint(route.points.latLngs, map);
+        setEndPoint(route.points.latLngs, map);
       };
       reader.readAsText(file);
     }

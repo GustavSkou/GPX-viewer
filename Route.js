@@ -18,6 +18,30 @@ class Run extends RouteType {
   }
 }
 
+class RoutePoints
+{
+  constructor( 
+    latLngs = [],
+    elevationPts = [],
+    speedPts = [],
+    timePts = []
+  ) {
+    this.latLngs = latLngs;
+    this.elevationPts = elevationPts;
+    this.speedPts = speedPts;
+    this.timePts = timePts;
+  }
+  pushRoutePoints(lat, lon, ele = 0, timeMS = 0)
+  {
+    //if (lat == null|| lon == null)
+    this.latLngs.push([lat, lon]);
+    this.elevationPts.push(ele);
+
+    if (timeMS != null)
+      this.timePts.push(timeMS)
+  }
+}
+
 class Route {
   constructor(
     name = "",
@@ -27,8 +51,7 @@ class Route {
     timeMS = 0,
     averageSpeed = 0,
     topSpeed = 0,
-    routePts = [],
-    routeEleList = []
+    points = new RoutePoints()
   ) {
     this.name = name;
     this.type = type;
@@ -37,8 +60,7 @@ class Route {
     this.timeMS = timeMS;
     this.averageSpeed = averageSpeed;
     this.topSpeed = topSpeed;
-    this.routePts = routePts;
-    this.routeEleList = routeEleList
+    this.points = points;
   }
 
   get distanceString() {
