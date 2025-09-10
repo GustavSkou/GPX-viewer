@@ -2,10 +2,26 @@ const _HOUR_MS = 60 * 60 * 1000;
 const _MINUTE_TO_MS = 60 * 1000;
 const _SECOND_TO_MS = 1000;
 
+class RouteType {
+  get iconUrl() {
+    return "icons\\route-icon.png";
+  }
+}
+class Ride extends RouteType {
+  get iconUrl() {
+    return "icons\\ride-icon.png";
+  }
+}
+class Run extends RouteType {
+  get iconUrl() {
+    return "icons\\run-icon.png"
+  }
+}
+
 class Route {
   constructor(
     name = "",
-    type = "",
+    type = new RouteType(),
     distance = 0,
     elevationGain = 0,
     timeMS = 0,
@@ -41,8 +57,7 @@ class Route {
     let milliseconds = this.timeMS;
     const hours = milliseconds / _HOUR_MS - ((milliseconds / _HOUR_MS) % 1);
     milliseconds -= hours * _HOUR_MS;
-    const minutes =
-      milliseconds / _MINUTE_TO_MS - ((milliseconds / _MINUTE_TO_MS) % 1);
+    const minutes = milliseconds / _MINUTE_TO_MS - ((milliseconds / _MINUTE_TO_MS) % 1);
     milliseconds -= minutes * _MINUTE_TO_MS;
     const seconds = milliseconds / _SECOND_TO_MS;
 

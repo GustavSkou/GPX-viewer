@@ -11,11 +11,12 @@ function createMap(divElementId) {
   return map;
 }
 
-function drawRoute(latLonArray, map) {
+function drawRoute(latLonArray, map, elevationList = []) {
   var polyline = L.polyline(latLonArray, {
     fillOpacity: 0.0,
     color: "red",
   }).addTo(map);
+  bindElevationPopup(polyline, elevationList);
   return polyline;
 }
 
@@ -36,4 +37,22 @@ function setEndPoint(latLonArray, map) {
     color: "blue",
     fillOpacity: 1,
   }).addTo(map);
+}
+
+function bindElevationPopup(polyline, elevationList = [])
+{
+  if (elevationList.length > 0)
+  {
+    const LatLngs = polyline.getLatLngs();
+    for (let i = 0; i < LatLngs.length-1; i++) {
+      try {
+        const segment = L.polyline(LatLngs[i], LatLngs[i+1], {color: "transparent"}).addTo(polyline._map);
+        segment.bindTooltip((elevationList[i] + elevationList[i+1])/2);
+      } catch (error) {
+        continue;
+      }
+    }
+  }
+  else
+    return;
 }

@@ -12,7 +12,7 @@ document
         setInfoElements(route, routeDisplayElement);
         addRouteDisplayElementToList(routeDisplayElement);
         var map = createMap(`map${Window.maps.length}`);
-        const polygon = drawRoute(route.routePts, map);
+        const polygon = drawRoute(route.routePts, map, route.routeEleList);
         setViewToRoute(polygon, map);
         setStartPoint(route.routePts, map);
         setEndPoint(route.routePts, map);
@@ -35,27 +35,37 @@ function fileToRoute(fileContent, fileName) {
 }
 
 function setInfoElements(route, parent) {
+  const nameLi = parent.querySelector("#name_li");
+  const iconLi = parent.querySelector("#icon_li");
   const distanceLi = parent.querySelector("#distance_li");
   const elevGainLi = parent.querySelector("#elev_li");
   const speedLi = parent.querySelector("#speed_li");
   const timeLi = parent.querySelector("#time_li");
-
+ 
   const nameElement = parent.querySelector("#name");
+  const iconElement = parent.querySelector("#icon");
   const distElement = parent.querySelector("#distance");
   const elevGainElement = parent.querySelector("#elev");
   const speedElement = parent.querySelector("#speed");
   const timeElement = parent.querySelector("#time");
 
   nameElement.textContent = route.name;
+  iconElement.src = route.type.iconUrl;
   distElement.textContent = route.distanceString;
   elevGainElement.textContent = route.elevationGainString;
   speedElement.textContent = route.averageSpeedString;
   timeElement.textContent = route.timeString;
 
+  nameLi.style.display = route.name != "" ? "block" : "none";
+  iconLi.style.display = "flex";
   distanceLi.style.display = route.distance >= 0 ? "block" : "none";
   elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
   speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
+}
+
+function setIconElement(type) {
+
 }
 
 function Distance(lat1, lon1, lat2, lon2) {

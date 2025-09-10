@@ -63,13 +63,7 @@ class GPXHandler {
     if (GPXHandler.getTrkPointTimeMS(trackPoints, 0) != null && GPXHandler.getTrkPointTimeMS(trackPoints, trackPoints.length-1) != null)
       route.timeMS = GPXHandler.getTrkPointTimeMS(trackPoints, trackPoints.length-1) - GPXHandler.getTrkPointTimeMS(trackPoints, 0);
 
-    console.log(
-      `${route.distanceString} 
-      ${route.elevationGainString} 
-      ${route.averageSpeedString} 
-      ${route.timeString}`
-    );
-
+    console.log(`${route.distanceString} ${route.elevationGainString} ${route.averageSpeedString} ${route.timeString}`);
     return route;
   }
 
@@ -101,10 +95,16 @@ class GPXHandler {
 
   static getTrkType(track) {
     try {
-      return track.getElementsByTagName("type")[0].textContent;
-    } catch (error) {
-      return "";
-    }
+      const trackName = track.getElementsByTagName("type")[0].textContent;
+      switch (trackName) {
+        case "cycling":
+          return new Ride();
+        case "run":
+          return new Run();
+        default:
+          return new RouteType();
+      }
+    } catch (error) {}
   }
 
   static setRoutePts(route, trackPoint) {

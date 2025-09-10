@@ -60,8 +60,15 @@ form {
 }
 .uploadMenu {
   position: sticky;
+  align-items: center;
   top: 0;
   left: 0;
   height: fit-content;
   width: fit-content;
+}
+
+.routeTypeIcon {
+  height: 24px;
+  width: 24px;
+  margin: auto 0;
 }
