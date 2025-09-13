@@ -24,22 +24,33 @@ class RoutePoints
     latLngs = [],
     elevationPts = [],
     speedPts = [],
-    timePts = []
+    timePts = [],
+    speedBetweenPts = []
   ) {
     this.latLngs = latLngs;
+    this.distance = [];
     this.elevationPts = elevationPts;
     this.speedPts = speedPts;
     this.timePts = timePts;
+    this.speedBetweenPts = speedBetweenPts;
   }
   pushRoutePoints(lat, lon, ele = 0, timeMS = 0)
   {
     //if (lat == null|| lon == null)
     this.latLngs.push([lat, lon]);
+    this.distance.push(Distance(latLngs[0][index], latLngs[1][index], latLngs[0][index+1], latLngs[1][index+1]));
     this.elevationPts.push(ele);
 
     if (timeMS != null)
       this.timePts.push(timeMS)
   }
+  /*getSegmentString(index)
+  {
+    `Time: ${}
+    Distance: ${}
+    Speed: ${Speed(this.distance[index]), timePts[index], timePts[index+1]}
+    Elevation: ${}`
+  }*/
 }
 
 class Route {

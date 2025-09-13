@@ -12,7 +12,7 @@ document
         setInfoElements(route, routeDisplayElement);
         addRouteDisplayElementToList(routeDisplayElement);
         var map = createMap(`map${Window.maps.length}`);
-        const polygon = drawRoute(route.points.latLngs, map, route.points.elevationPts);
+        const polygon = drawRoute(route, map);
         setViewToRoute(polygon, map);
         setStartPoint(route.points.latLngs, map);
         setEndPoint(route.points.latLngs, map);
@@ -84,6 +84,11 @@ function Distance(lat1, lon1, lat2, lon2) {
   return 2 * r * Math.asin(Math.sqrt(a));
 }
 
+function Speed(distance, startTimeMS, endTimeMS)
+{
+  return (distance / (endTimeMS - startTimeMS)) * _HOUR_MS;
+}
+
 function getRouteDisplayTemplate() {
   const template = document.getElementById("routeDisplayTemplate");
   const clone = template.content.cloneNode(true);
@@ -92,5 +97,5 @@ function getRouteDisplayTemplate() {
 }
 
 function addRouteDisplayElementToList(element) {
-  document.getElementById("routeDisplayList").appendChild(element);
+  document.getElementById("routeDisplayList").prepend(element); // use routeDisplayList as a stack
 }
