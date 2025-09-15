@@ -13,7 +13,9 @@ function createMap(divElementId) {
 
 function drawRoute(route = new Route(), map) {
   drawRouteSegments(route, map);
-  return polyline;
+  const latLngs = route.points.map(pt => pt.latLngs);
+  const polygon = L.polygon(latLngs, { color: 'transparent', fillOpacity: 0.0, pane: 'shadowPane' }).addTo(map);
+  return polygon;
 }
 
 function setViewToRoute(polygon, map) {
@@ -22,14 +24,14 @@ function setViewToRoute(polygon, map) {
 }
 
 function setStartPoint(latLonArray, map) {
-  L.circle(latLonArray[0], 2, {
+  L.circle(latLonArray, 2, {
     color: "green",
     fillOpacity: 1,
   }).addTo(map);
 }
 
 function setEndPoint(latLonArray, map) {
-  L.circle(latLonArray[latLonArray.length - 1], 2, {
+  L.circle(latLonArray, 2, {
     color: "blue",
     fillOpacity: 1,
   }).addTo(map);
@@ -37,21 +39,24 @@ function setEndPoint(latLonArray, map) {
 
 function drawRouteSegments(route, map,)
 {
-  for (let i = 0; i < route.points.latLngs.length-1; i++) {
+  const segments = [];
+  for (let i = 0; i < route.points.length-1; i++) {
     var segment = L.polyline(
-    [route.points.latLngs[i], route.points.latLngs[i+1]], {
-      fillOpacity: 0.0,
-      color: "red"
+    [route.points[i].latLngs, route.points[i+1].latLngs], {
+      opacity: 0.5,
+      color: "red",
+      weight: 5
     }
-    ).bindTooltip(
-      `ele: ${getAvgEle(route.points.elevationPts[i], route.points.elevationPts[i+1])}`
-
-      
     ).addTo(map);
-    /*segment.bindTooltip(
-      `${(route.points.elevationPts[i] + route.points.elevationPts[i+1])/2}`
-    );*/
+
+    segment.bindTooltip(
+      `ele: ${getAvgEle(route.points[i].elevation, route.points[i + 1].elevation)}`,
+      { permanent: false, direction: "top" }
+    );
+
+    segments.push(segment);
   }
+  return segments;
 }
 function getAvgEle(ele1, ele2)
 {
@@ -70,7 +75,7 @@ function bindElevationPopup(polyline, elevationList = [], map)
             fillOpacity: 0.0,
             color: "red"
           }).addTo(map);
-        //segment.bindTooltip((elevationList[i] + elevationList[i+1])/2);
+       
       } catch (error) {
         continue;
       }

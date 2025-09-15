@@ -1,7 +1,6 @@
 document
   .getElementById("fileInput")
   .addEventListener("change", function (event) {
-    //if (Window.maps[0] != null) Window.maps[0].remove();
     const routeDisplayElement = getRouteDisplayTemplate();
     const file = event.target.files[0];
     if (file) {
@@ -14,8 +13,8 @@ document
         var map = createMap(`map${Window.maps.length}`);
         const polygon = drawRoute(route, map);
         setViewToRoute(polygon, map);
-        setStartPoint(route.points.latLngs, map);
-        setEndPoint(route.points.latLngs, map);
+        setStartPoint(route.points[0].latLngs, map);
+        setEndPoint(route.points[route.points.length-1].latLngs, map);
       };
       reader.readAsText(file);
     }
@@ -64,13 +63,16 @@ function setInfoElements(route, parent) {
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
 }
 
-function setIconElement(type) {
-
-}
-
+/**
+ * returns the distance between two pairs lat/lon points in Km
+ * @param {Number} lat1 
+ * @param {Number} lon1 
+ * @param {Number} lat2 
+ * @param {Number} lon2 
+ * @returns {Number}
+ */
 function Distance(lat1, lon1, lat2, lon2) {
-  // returns distance between two points in km
-  const r = 6371; // km
+  const r = 6371;
   const p = Math.PI / 180;
 
   const a =
@@ -83,10 +85,16 @@ function Distance(lat1, lon1, lat2, lon2) {
 
   return 2 * r * Math.asin(Math.sqrt(a));
 }
-
-function Speed(distance, startTimeMS, endTimeMS)
+/**
+ * returns the speed over at distance in Km/h
+ * @param {Number} distance 
+ * @param {Number} startTimeMS 
+ * @param {Number} endTimeMS 
+ * @returns {Number}
+ */
+function Speed(distanceKM, startTimeMS, endTimeMS)
 {
-  return (distance / (endTimeMS - startTimeMS)) * _HOUR_MS;
+  return (distanceKM / (endTimeMS - startTimeMS)) * _HOUR_MS;
 }
 
 function getRouteDisplayTemplate() {

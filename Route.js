@@ -17,61 +17,92 @@ class Run extends RouteType {
     return "icons\\run-icon.png"
   }
 }
-
-class RoutePoints
+/**
+ * Point is a latitude and longitude "point"
+ */
+class Point
 {
+  /**
+   * @param {string[]} latLngs 
+   * @param {Number} elevation 
+   * @param {Number} time 
+   */
   constructor( 
-    latLngs = [],
-    elevationPts = [],
-    speedPts = [],
-    timePts = [],
-    speedBetweenPts = []
+    latLngs = new Array(String),
+    elevation,
+    time = -1,
   ) {
     this.latLngs = latLngs;
-    this.distance = [];
-    this.elevationPts = elevationPts;
-    this.speedPts = speedPts;
-    this.timePts = timePts;
-    this.speedBetweenPts = speedBetweenPts;
+    this.elevation = elevation;
+    this.time = time;
   }
-  pushRoutePoints(lat, lon, ele = 0, timeMS = 0)
-  {
-    //if (lat == null|| lon == null)
-    this.latLngs.push([lat, lon]);
-    this.distance.push(Distance(latLngs[0][index], latLngs[1][index], latLngs[0][index+1], latLngs[1][index+1]));
-    this.elevationPts.push(ele);
+}
 
-    if (timeMS != null)
-      this.timePts.push(timeMS)
+/**
+ * Segment is the line between two points on a Route
+ */
+class Segment
+{
+  /**
+   * @param {Number} distance 
+   * @param {Number} speed 
+   * @param {Number} gradient 
+   */
+  constructor( 
+    distance,
+    speed,
+    gradient,
+  ) {
+    this.distance = distance;
+    this.speed = speed;
+    this.gradient = gradient;
   }
-  /*getSegmentString(index)
-  {
-    `Time: ${}
-    Distance: ${}
-    Speed: ${Speed(this.distance[index]), timePts[index], timePts[index+1]}
-    Elevation: ${}`
-  }*/
+
+  toString() {
+    return `${this.distance}, ${this.speed}, ${this.gradient}`
+  }
 }
 
 class Route {
+  /**
+   * 
+   * @param {String} name 
+   * @param {RouteType} type 
+   * @param {Number} distance 
+   * @param {Number} elevationGain 
+   * @param {Number} timeMS 
+   * @param {Number} averageSpeed 
+   * @param {Number} topSpeed 
+   * @param {Point[]} points 
+   * @param {Segment[]} segment 
+   */
   constructor(
     name = "",
     type = new RouteType(),
     distance = 0,
     elevationGain = 0,
-    timeMS = 0,
-    averageSpeed = 0,
-    topSpeed = 0,
-    points = new RoutePoints()
+    averageSpeed = -1,
+    topSpeed = -1,
+    points = new Array(),
+    segment
   ) {
     this.name = name;
     this.type = type;
     this.distance = distance;
     this.elevationGain = elevationGain;
-    this.timeMS = timeMS;
     this.averageSpeed = averageSpeed;
     this.topSpeed = topSpeed;
     this.points = points;
+    this.Segment = segment;
+  }
+
+  get timeMS() {
+    try {
+      return this.points[this.points.length - 1].time - this.points[0].time;
+    }
+    catch(error) {
+      return 0;
+    }
   }
 
   get distanceString() {
@@ -99,5 +130,33 @@ class Route {
       minutes.toString().padEnd(2, "0"),
       seconds.toString().padStart(2, "0")
     ).join(":");
+  }
+
+  /**
+   * updates the route's total elevation gain by comparing the newest elevation and the previous elevation
+   */
+  updateElevationGain()
+  {
+    const lastIndex = this.points.length - 1;
+    if (this.points.length < 2 ) return
+      
+    if (this.points[lastIndex].elevation > this.points[lastIndex-1].elevation)
+      this.elevationGain += this.points[lastIndex].elevation - this.points[lastIndex-1].elevation;
+  }
+
+  /**
+   * checks if the time at the first and last index is a valid time 
+   * @returns {boolean}
+   */
+  isTimeValid() {
+    try {
+      return this.points[0].time > -1 && this.points[this.points.length-1].time > -1;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  toString() {
+    return `${this.distanceString} ${this.elevationGainString} ${this.averageSpeedString} ${this.timeString}`
   }
 }

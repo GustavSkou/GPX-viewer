@@ -1,66 +1,83 @@
 class GPXHandler {
   constructor() {}
 
-  static getGPXRouteData(track) {
-    const trackPoints = track.getElementsByTagName("trkpt"); // contains only the trkpt elements
+  /**
+   * parses the fileContents and returns a new Route instance
+   * @param {string} fileContent 
+   * @returns {Route}
+   */
+    static parseGPXToRoute(fileContent) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(fileContent, "application/xml");
+    const track = xmlDoc.getElementsByTagName("trk")[0];
+    return GPXHandler.parseTrackToRoute(track);
+  }
 
+  /**
+   * Create a new instance of Route and sets attributes based on the <trk> element passed
+   * @param {Element} track 
+   * @returns {Route}
+   */
+  static parseTrackToRoute(track) {
+    let accumulatedSpeed = 0;
+    const trackPoints = track.getElementsByTagName("trkpt"); // contains only the trkpt elements
     const route = new Route ( 
       GPXHandler.getTrkName(track),
       GPXHandler.getTrkType(track)
     );
 
-    let totalSpeed = 0;
-
     for (let i = 0; i < trackPoints.length - 1; i++) {
       GPXHandler.setRoutePts(route, trackPoints[i]);
-      if (i == 0) 
-        continue;
+      if (i == 0) continue;
 
       let distanceBetweenPoints = Distance (
-        route.points.latLngs[i-1][0], 
-        route.points.latLngs[i-1][1], 
-        route.points.latLngs[i][0], 
-        route.points.latLngs[i][1] 
-      ); // distance in km
-      route.elevationGain += 
-        route.points.elevationPts[i] > route.points.elevationPts[i-1] 
-          ? route.points.elevationPts[i] - route.points.elevationPts[i-1] 
-          : 0; 
+        route.points[i-1].latLngs[0], 
+        route.points[i-1].latLngs[1], 
+        route.points[i].latLngs[0], 
+        route.points[i].latLngs[1] 
+      );
+      
       route.distance += distanceBetweenPoints;
-
-      if (route.points.timePts[i] > 0) {
-        let speedBetweenPoints = Speed(distanceBetweenPoints, route.points.timePts[i-1], route.points.timePts[i]);
-        totalSpeed += speedBetweenPoints;
+      route.updateElevationGain();
+      
+      if ( route.isTimeValid() ) {
+        let speedBetweenPoints = Speed (
+          distanceBetweenPoints, 
+          route.points[i-1].time, 
+          route.points[i].time
+        );
         route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
+        accumulatedSpeed += speedBetweenPoints;
       }
     }
     
-    route.averageSpeed = totalSpeed / (trackPoints.length - 1);
-    if (route.points.timePts[0] != 0 && route.points.timePts[trackPoints.length-1] != 0)
-      route.timeMS = route.points.timePts[route.points.timePts.length-1] - route.points.timePts[0];
-
-    console.log(`${route.distanceString} ${route.elevationGainString} ${route.averageSpeedString} ${route.timeString}`);
+    if ( route.isTimeValid() ) {
+      route.averageSpeed = accumulatedSpeed / (trackPoints.length - 1);
+    }
+    //console.log(route.toString());
     return route;
   }
 
-  static parseGPXToRoute(file) {
-    const gpxContent = file;
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(gpxContent, "application/xml");
-    const track = xmlDoc.getElementsByTagName("trk")[0];
-    return GPXHandler.getGPXRouteData(track);
-  }
-
+  /**
+   * 
+   * @param {Element} trackPoint 
+   * @returns {Number}
+   */
   static getTrkPointTimeMS(trackPoint) {
     try {
       return new Date(
         trackPoint.getElementsByTagName("time")[0].textContent)
         .getTime();
     } catch (error) {
-      return 0;
+      return -1;
     }
   }
 
+  /**
+   * 
+   * @param {Element} track 
+   * @returns {string}
+   */
   static getTrkName(track) {
     try {
       return track.getElementsByTagName("name")[0].textContent;
@@ -69,6 +86,11 @@ class GPXHandler {
     }
   }
 
+  /**
+   * 
+   * @param {Element} track 
+   * @returns {RouteType}
+   */
   static getTrkType(track) {
     try {
       const trackName = track.getElementsByTagName("type")[0].textContent;
@@ -83,11 +105,21 @@ class GPXHandler {
     } catch (error) {}
   }
 
+  /**
+   * Creates a new Point instance and pushes it to the route's point array
+   * @param {Route} route 
+   * @param {Element} trackPoint 
+   */
   static setRoutePts(route, trackPoint) {
     const lat = trackPoint.getAttribute("lat");
     const lon = trackPoint.getAttribute("lon");
     const ele = parseFloat(trackPoint.getElementsByTagName("ele")[0].textContent);
     const MS = GPXHandler.getTrkPointTimeMS(trackPoint)
-    route.points.pushRoutePoints(lat, lon, ele, MS)
+    route.points.push(
+      new Point(
+        [lat, lon], 
+        ele, 
+        MS
+      ));
   }
 }
