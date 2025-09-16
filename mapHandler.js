@@ -5,7 +5,7 @@ class MapHandler {
     }
     MapHandler._instance = this;
 
-    this.maps = new Array();  
+    this.maps = new Map();  
   }
 
   static get instance() {
@@ -22,7 +22,7 @@ class MapHandler {
       attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-    this.maps.push(map);
+    MapHandler.instance.maps.set(divElementId, map);
     return map;
   }
 

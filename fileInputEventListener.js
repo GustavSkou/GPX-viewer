@@ -10,11 +10,15 @@ document
         reader.onload = function (event) {
           const fileReader = event.target;
           const route = fileToRoute(fileReader.result, file.name);
+          
+          if (MapHandler.instance.maps.has(route.name))
+            return
+
           let routeDisplayElement = getRouteDisplayTemplate(route);
           setInfoElements(route, routeDisplayElement);
           addRouteDisplayElementToList(routeDisplayElement);
 
-          var map = MapHandler.instance.createMap(`map${route.name}`);
+          var map = MapHandler.instance.createMap(`${route.name}`);
 
           const polygon = MapHandler.instance.drawRoute(route, map);
           MapHandler.instance.setViewToRoute(polygon, map);
@@ -26,6 +30,13 @@ document
     }   
   });
 
+
+/**
+ * 
+ * @param {String} fileContent 
+ * @param {String} fileName 
+ * @returns {Route}
+ */
 function fileToRoute(fileContent, fileName) {
   const lastDotIndex = fileName.lastIndexOf(".");
   const fileExtension = fileName.substring(lastDotIndex);
@@ -118,7 +129,7 @@ function gradient(distanceKM, elevationGainedM) {
 function getRouteDisplayTemplate(route) {
   const template = document.getElementById("routeDisplayTemplate");
   const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `map${route.name}`;
+  clone.querySelector("#tempMapId").id = `${route.name}`;
   return clone;
 }
 
