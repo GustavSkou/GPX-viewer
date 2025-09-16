@@ -59,7 +59,7 @@ class Segment
   }
 
   toString() {
-    return `${this.distance}, ${this.speed}, ${this.gradient}`
+    return `Dist: ${(this.distance * 1000).toFixed(2)}, Speed: ${this.speed.toFixed(2)}, grad:  ${this.gradient.toFixed(1)}`;
   }
 }
 
@@ -74,7 +74,7 @@ class Route {
    * @param {Number} averageSpeed 
    * @param {Number} topSpeed 
    * @param {Point[]} points 
-   * @param {Segment[]} segment 
+   * @param {Segment[]} segments 
    */
   constructor(
     name = "",
@@ -84,7 +84,7 @@ class Route {
     averageSpeed = -1,
     topSpeed = -1,
     points = new Array(),
-    segment
+    segments = new Array()
   ) {
     this.name = name;
     this.type = type;
@@ -93,7 +93,7 @@ class Route {
     this.averageSpeed = averageSpeed;
     this.topSpeed = topSpeed;
     this.points = points;
-    this.Segment = segment;
+    this.segments = segments;
   }
 
   get timeMS() {

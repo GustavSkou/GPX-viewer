@@ -10,11 +10,12 @@ document
         const route = fileToRoute(fileReader.result, file.name);
         setInfoElements(route, routeDisplayElement);
         addRouteDisplayElementToList(routeDisplayElement);
-        var map = createMap(`map${Window.maps.length}`);
-        const polygon = drawRoute(route, map);
-        setViewToRoute(polygon, map);
-        setStartPoint(route.points[0].latLngs, map);
-        setEndPoint(route.points[route.points.length-1].latLngs, map);
+
+        var map = MapHandler.instance.createMap(`map${MapHandler.instance.maps.length}`);
+        const polygon = MapHandler.instance.drawRoute(route, map);
+        MapHandler.instance.setViewToRoute(polygon, map);
+        MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
+        MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
       };
       reader.readAsText(file);
     }
@@ -96,11 +97,19 @@ function Speed(distanceKM, startTimeMS, endTimeMS)
 {
   return (distanceKM / (endTimeMS - startTimeMS)) * _HOUR_MS;
 }
+/**
+ * returns the % gradient for a given distance and elevationGained over set distance
+ * @param {Number} distance 
+ * @param {Number} elevation 
+ */
+function gradient(distanceKM, elevationGainedM) {
+  return elevationGainedM / (distanceKM * 1000) * 100;
+}
 
 function getRouteDisplayTemplate() {
   const template = document.getElementById("routeDisplayTemplate");
   const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `map${Window.maps.length}`;
+  clone.querySelector("#tempMapId").id = `map${MapHandler.instance.maps.length}`;
   return clone;
 }
 

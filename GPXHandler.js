@@ -40,8 +40,9 @@ class GPXHandler {
       route.distance += distanceBetweenPoints;
       route.updateElevationGain();
       
+      let speedBetweenPoints = 0;
       if ( route.isTimeValid() ) {
-        let speedBetweenPoints = Speed (
+        speedBetweenPoints = Speed (
           distanceBetweenPoints, 
           route.points[i-1].time, 
           route.points[i].time
@@ -49,6 +50,15 @@ class GPXHandler {
         route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
         accumulatedSpeed += speedBetweenPoints;
       }
+
+      this.setRouteSegments(
+        route, 
+        distanceBetweenPoints, 
+        speedBetweenPoints,
+        gradient(
+          distanceBetweenPoints, route.points[i].elevation - route.points[i-1].elevation
+        )
+      );
     }
     
     if ( route.isTimeValid() ) {
@@ -115,11 +125,25 @@ class GPXHandler {
     const lon = trackPoint.getAttribute("lon");
     const ele = parseFloat(trackPoint.getElementsByTagName("ele")[0].textContent);
     const MS = GPXHandler.getTrkPointTimeMS(trackPoint)
-    route.points.push(
-      new Point(
+    route.points.push( new Point (
         [lat, lon], 
         ele, 
         MS
       ));
+  }
+
+  /**
+   * @param {Route} route 
+   * @param {Number} distance 
+   * @param {Number} speed 
+   * @param {Number} gradient 
+   */
+  static setRouteSegments(route, distance, speed, gradient) {
+    route.segments.push ( new Segment (
+        distance, 
+        speed, 
+        gradient
+      )
+    )
   }
 }
