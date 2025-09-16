@@ -1,24 +1,29 @@
 document
   .getElementById("fileInput")
   .addEventListener("change", function (event) {
-    const routeDisplayElement = getRouteDisplayTemplate();
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const fileReader = event.target;
-        const route = fileToRoute(fileReader.result, file.name);
-        setInfoElements(route, routeDisplayElement);
-        addRouteDisplayElementToList(routeDisplayElement);
+    
+    for (let i = 0; i < event.target.files.length; i++) {
+    let file = event.target.files[i];
 
-        var map = MapHandler.instance.createMap(`map${MapHandler.instance.maps.length}`);
-        const polygon = MapHandler.instance.drawRoute(route, map);
-        MapHandler.instance.setViewToRoute(polygon, map);
-        MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
-        MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
-      };
-      reader.readAsText(file);
-    }
+        if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const fileReader = event.target;
+          const route = fileToRoute(fileReader.result, file.name);
+          let routeDisplayElement = getRouteDisplayTemplate(route);
+          setInfoElements(route, routeDisplayElement);
+          addRouteDisplayElementToList(routeDisplayElement);
+
+          var map = MapHandler.instance.createMap(`map${route.name}`);
+
+          const polygon = MapHandler.instance.drawRoute(route, map);
+          MapHandler.instance.setViewToRoute(polygon, map);
+          MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
+          MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+        };
+        reader.readAsText(file);
+      }
+    }   
   });
 
 function fileToRoute(fileContent, fileName) {
@@ -105,11 +110,15 @@ function Speed(distanceKM, startTimeMS, endTimeMS)
 function gradient(distanceKM, elevationGainedM) {
   return elevationGainedM / (distanceKM * 1000) * 100;
 }
-
-function getRouteDisplayTemplate() {
+/**
+ * route name is used to link the map's id to the display div's id
+ * @param {Route} route 
+ * @returns 
+ */
+function getRouteDisplayTemplate(route) {
   const template = document.getElementById("routeDisplayTemplate");
   const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `map${MapHandler.instance.maps.length}`;
+  clone.querySelector("#tempMapId").id = `map${route.name}`;
   return clone;
 }
 
