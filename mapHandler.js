@@ -26,41 +26,25 @@ class MapHandler {
     return map;
   }
 
-  setViewToRoute(polygon, map) {
-    map.setView(polygon.getCenter());
-    map.fitBounds(polygon.getBounds());
-  }
-
-  drawRoute(route = new Route(), map) {
+  /**
+   * draws the route onto the map and returns a polygon representing the route
+   * @param {Route} route 
+   * @param {L.Map} map 
+   * @returns {L.Polygon}
+   */
+  drawRoute(route, map) {
     this.drawRouteSegments(route, map);
-    const latLngs = route.points.map(pt => pt.latLngs);
-    const polygon = L.polygon(latLngs, { color: 'transparent', fillOpacity: 0.0, pane: 'shadowPane' }).addTo(map);
+    const polygon = this.getRoutePolygon(route, map);
     return polygon;
   }
 
-  setStartPoint(latLonArray, map) {
-    L.circle(latLonArray, 2, {
-      color: "green",
-      fillOpacity: 1,
-    }).addTo(map);
-  }
-
-  setEndPoint(latLonArray, map) {
-    L.circle(latLonArray, 2, {
-      color: "blue",
-      fillOpacity: 1,
-    }).addTo(map);
-  }
-
   /**
-   * 
+   * draws a route on the map by making a polyline between all the points 
    * @param {Route} route 
-   * @param {*} map 
-   * @returns 
+   * @param {L.Map} map  
    */
   drawRouteSegments(route, map,)
   {
-    const segments = [];
     for (let i = 0; i < route.points.length-1; i++) {
       var segment = L.polyline(
       [route.points[i].latLngs, route.points[i+1].latLngs], {
@@ -73,9 +57,51 @@ class MapHandler {
       segment.bindTooltip(
         route.segments[i].toString()
       );
-
-      segments.push(segment);
     }
-    return segments;
+  }
+
+  /**
+   * create a polygon from a route
+   * @param {Route} route 
+   * @param {L.Map} map 
+   * @returns 
+   */
+  getRoutePolygon(route, map) {
+    const latLngs = route.points.map(pt => pt.latLngs);
+    const polygon = L.polygon(latLngs, { color: 'transparent', weight: 0, pane: 'shadowPane' }).addTo(map);
+    return polygon;
+  }
+/**
+ * 
+ * @param {L.Polygon} polygon 
+ * @param {L.Map} map 
+ */
+  setViewToRoute(polygon, map) {
+    map.setView(polygon.getCenter());
+    map.fitBounds(polygon.getBounds());
+  }
+
+  /**
+  *
+  * @param {Number[]} latLon
+  * @param {L.Map} map
+  */
+  setStartPoint(latLon, map) {
+    L.circle(latLon, 2, {
+      color: "green",
+      fillOpacity: 1,
+    }).addTo(map);
+  }
+
+  /**
+  *
+  * @param {Number[]} latLon
+  * @param {L.Map} map
+  */
+  setEndPoint(latLon, map) {
+    L.circle(latLon, 2, {
+      color: "blue",
+      fillOpacity: 1,
+    }).addTo(map);
   }
 }
