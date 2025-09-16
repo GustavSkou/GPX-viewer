@@ -16,7 +16,7 @@ class MapHandler {
   }
 
   createMap(divElementId) {
-    var map = L.map(divElementId).setView([0, 0], 19);
+    var map = L.map(divElementId, { zoomControl: false }).setView([0, 0], 19);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution:
