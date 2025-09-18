@@ -1,7 +1,9 @@
 document
   .getElementById("fileInput")
   .addEventListener("change", function (event) {
-    
+
+    removefileErrorMessage();
+
     for (let i = 0; i < event.target.files.length; i++) {
     let file = event.target.files[i];
 
@@ -9,24 +11,28 @@ document
         const reader = new FileReader();
 
         reader.onload = function (event) {
-          const fileReader = event.target;
-          const route = fileToRoute(fileReader.result, file.name);
-          
-          if (MapHandler.instance.maps.has(route.name))
-            return
+          try {
+            const fileReader = event.target;
+            const route = fileToRoute(fileReader.result, file.name);
+            
+            if (MapHandler.instance.maps.has(route.name)) // route's "id" shouldn't be the name
+              throw new FileError(`${route.name} has already been uploaded`);
 
-          let routeDisplayElement = getRouteDisplayTemplate(route.name);
-          setInfoElements(route, routeDisplayElement);
-          addRouteDisplayElementToList(routeDisplayElement);
+            let routeDisplayElement = getRouteDisplayTemplate(route.name);
+            setInfoElements(route, routeDisplayElement);
+            addRouteDisplayElementToList(routeDisplayElement);
 
-          var map = MapHandler.instance.createMap(`${route.name}`);
+            var map = MapHandler.instance.createMap(`${route.name}`);
 
-          const polygon = MapHandler.instance.drawRoute(route, map);
-          MapHandler.instance.setViewToRoute(polygon, map);
-          MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
-          MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+            const polygon = MapHandler.instance.drawRoute(route, map);
+            MapHandler.instance.setViewToRoute(polygon, map);
+            MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
+            MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+          }
+          catch (error) {
+            fileErrorHandler(error);
+          }
         };
-
         reader.readAsText(file);
       }
     }   
@@ -47,7 +53,7 @@ function fileToRoute(fileContent, fileName) {
       return GPXHandler.parseGPXToRoute(fileContent);
 
     default:
-      break;
+      throw new FileError(`Format ${fileExtension} is not supported`);
   }
 }
 
@@ -79,6 +85,42 @@ function setInfoElements(route, parent) {
   elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
   speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
+}
+
+/**
+ * route name is used to link the map's id to the display div's id
+ * @param {String} route 
+ * @returns {HTMLElement}
+ */
+function getRouteDisplayTemplate(routeId) {
+  const template = document.getElementById("routeDisplayTemplate");
+  const clone = template.content.cloneNode(true);
+  clone.querySelector("#tempMapId").id = `${routeId}`;
+  return clone;
+}
+
+function addRouteDisplayElementToList(element) {
+  document.getElementById("routeDisplayList").prepend(element); // use routeDisplayList as a stack
+}
+
+/**
+ * 
+ * @param {FileError} error 
+ */
+function fileErrorHandler(fileError) {
+  console.log(fileError.message);
+  const error_p = document.getElementById("error_p");
+
+  if (fileError instanceof FileError) {
+    error_p.innerHTML += `${fileError.message}<br>`;
+  } else {
+    error_p.innerHTML += `there was an unexpected error<br>`;
+  }
+}
+
+function removefileErrorMessage() {
+  const error_p = document.getElementById("error_p");
+  error_p.innerHTML = "";
 }
 
 /**
@@ -125,18 +167,4 @@ function gradient(distanceKM, elevationGainedM) {
   return elevationGainedM / (distanceKM * 1000) * 100;
 }
 
-/**
- * route name is used to link the map's id to the display div's id
- * @param {String} route 
- * @returns {HTMLElement}
- */
-function getRouteDisplayTemplate(routeId) {
-  const template = document.getElementById("routeDisplayTemplate");
-  const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `${routeId}`;
-  return clone;
-}
 
-function addRouteDisplayElementToList(element) {
-  document.getElementById("routeDisplayList").prepend(element); // use routeDisplayList as a stack
-}
