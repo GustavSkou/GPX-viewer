@@ -1,3 +1,7 @@
+
+/**
+ * Facade for using Leftlet with the Route
+ */
 class MapHandler {
   constructor() {
     if (MapHandler._instance) {
@@ -15,14 +19,18 @@ class MapHandler {
     return MapHandler._instance;
   }
 
-  createMap(divElementId) {
-    var map = L.map(divElementId, { zoomControl: false }).setView([0, 0], 19);
+  /**
+   * Create Map and bind it to the html element using the elementId
+   * @param {String} elementId 
+   * @returns {L.Map}
+   */
+  createMap(elementId) {
+    var map = L.map(elementId, { zoomControl: false }).setView([0, 0], 19);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-    MapHandler.instance.maps.set(divElementId, map);
+    MapHandler.instance.maps.set(elementId, map); // save the Map to the maps map
     return map;
   }
 
@@ -71,18 +79,19 @@ class MapHandler {
     const polygon = L.polygon(latLngs, { color: 'transparent', weight: 0, pane: 'shadowPane' }).addTo(map);
     return polygon;
   }
-/**
- * 
- * @param {L.Polygon} polygon 
- * @param {L.Map} map 
- */
+
+  /**
+   * Set the map's view and zoom to fit it inside the bounds
+   * @param {L.Polygon} polygon 
+   * @param {L.Map} map 
+   */
   setViewToRoute(polygon, map) {
     map.setView(polygon.getCenter());
     map.fitBounds(polygon.getBounds());
   }
 
   /**
-  *
+  * 
   * @param {Number[]} latLon
   * @param {L.Map} map
   */

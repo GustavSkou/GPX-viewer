@@ -7,6 +7,7 @@ document
 
         if (file) {
         const reader = new FileReader();
+
         reader.onload = function (event) {
           const fileReader = event.target;
           const route = fileToRoute(fileReader.result, file.name);
@@ -14,7 +15,7 @@ document
           if (MapHandler.instance.maps.has(route.name))
             return
 
-          let routeDisplayElement = getRouteDisplayTemplate(route);
+          let routeDisplayElement = getRouteDisplayTemplate(route.name);
           setInfoElements(route, routeDisplayElement);
           addRouteDisplayElementToList(routeDisplayElement);
 
@@ -25,11 +26,11 @@ document
           MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
           MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
         };
+
         reader.readAsText(file);
       }
     }   
   });
-
 
 /**
  * 
@@ -113,23 +114,26 @@ function Speed(distanceKM, startTimeMS, endTimeMS)
 {
   return (distanceKM / (endTimeMS - startTimeMS)) * _HOUR_MS;
 }
+
 /**
  * returns the % gradient for a given distance and elevationGained over set distance
- * @param {Number} distance 
- * @param {Number} elevation 
+ * @param {Number} distanceKM 
+ * @param {Number} elevationGainedM 
+ * @returns {Number}
  */
 function gradient(distanceKM, elevationGainedM) {
   return elevationGainedM / (distanceKM * 1000) * 100;
 }
+
 /**
  * route name is used to link the map's id to the display div's id
- * @param {Route} route 
- * @returns 
+ * @param {String} route 
+ * @returns {HTMLElement}
  */
-function getRouteDisplayTemplate(route) {
+function getRouteDisplayTemplate(routeId) {
   const template = document.getElementById("routeDisplayTemplate");
   const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `${route.name}`;
+  clone.querySelector("#tempMapId").id = `${routeId}`;
   return clone;
 }
 
