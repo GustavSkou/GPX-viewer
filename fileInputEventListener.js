@@ -13,11 +13,8 @@ document
             const fileReader = event.target;
             const route = fileToRoute(fileReader.result, file.name);
             
-            if (route == null)
-              throw new Error("Format is not supported");
-
             if (MapHandler.instance.maps.has(route.name))
-              throw new Error("Route has already been uploaded");
+              throw new FileError(`${route.name} has already been uploaded`);
 
             let routeDisplayElement = getRouteDisplayTemplate(route.name);
             setInfoElements(route, routeDisplayElement);
@@ -29,9 +26,8 @@ document
             MapHandler.instance.setViewToRoute(polygon, map);
             MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
             MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
-          } catch (error) {
-            console.log(error.message)
-            //handle error
+          } catch (FileError) {
+              fileErrorHandler(FileError);
           }
         };
 
@@ -55,7 +51,7 @@ function fileToRoute(fileContent, fileName) {
       return GPXHandler.parseGPXToRoute(fileContent);
 
     default:
-      return null;
+      return new FileError(`Format ${fileExtension} is not supported`);
   }
 }
 
@@ -87,6 +83,31 @@ function setInfoElements(route, parent) {
   elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
   speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
+}
+
+/**
+ * route name is used to link the map's id to the display div's id
+ * @param {String} route 
+ * @returns {HTMLElement}
+ */
+function getRouteDisplayTemplate(routeId) {
+  const template = document.getElementById("routeDisplayTemplate");
+  const clone = template.content.cloneNode(true);
+  clone.querySelector("#tempMapId").id = `${routeId}`;
+  return clone;
+}
+
+function addRouteDisplayElementToList(element) {
+  document.getElementById("routeDisplayList").prepend(element); // use routeDisplayList as a stack
+}
+
+/**
+ * 
+ * @param {FileError} error 
+ */
+function fileErrorHandler(fileError) {
+  const error_div = document.getElementById("error_div");
+  error_div.content = fileError.message;
 }
 
 /**
@@ -133,18 +154,4 @@ function gradient(distanceKM, elevationGainedM) {
   return elevationGainedM / (distanceKM * 1000) * 100;
 }
 
-/**
- * route name is used to link the map's id to the display div's id
- * @param {String} route 
- * @returns {HTMLElement}
- */
-function getRouteDisplayTemplate(routeId) {
-  const template = document.getElementById("routeDisplayTemplate");
-  const clone = template.content.cloneNode(true);
-  clone.querySelector("#tempMapId").id = `${routeId}`;
-  return clone;
-}
 
-function addRouteDisplayElementToList(element) {
-  document.getElementById("routeDisplayList").prepend(element); // use routeDisplayList as a stack
-}
