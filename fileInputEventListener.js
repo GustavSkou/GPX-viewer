@@ -26,8 +26,8 @@ document
             MapHandler.instance.setViewToRoute(polygon, map);
             MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
             MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
-          } catch (FileError) {
-              fileErrorHandler(FileError);
+          } catch (error) {
+            fileErrorHandler(error);
           }
         };
 
@@ -51,7 +51,7 @@ function fileToRoute(fileContent, fileName) {
       return GPXHandler.parseGPXToRoute(fileContent);
 
     default:
-      return new FileError(`Format ${fileExtension} is not supported`);
+      throw new FileError(`Format ${fileExtension} is not supported`);
   }
 }
 
@@ -106,8 +106,9 @@ function addRouteDisplayElementToList(element) {
  * @param {FileError} error 
  */
 function fileErrorHandler(fileError) {
-  const error_div = document.getElementById("error_div");
-  error_div.content = fileError.message;
+  console.log(fileError.message);
+  const error_p = document.getElementById("error_p");
+  error_p.textContent = `${fileError.message} \n ${error_p.textContent}`;
 }
 
 /**

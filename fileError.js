@@ -1,5 +1,5 @@
 class FileError extends Error {
-    constructor(message) {}
-
-    constructor(message, fileName) {}
+    constructor(message) {
+        super(message);
+    } 
 }
