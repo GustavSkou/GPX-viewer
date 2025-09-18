@@ -72,3 +72,9 @@ form {
   width: 24px;
   margin: auto 0;
 }
+
+.error_p {
+  margin-left: 15px;
+  margin-top: 5px;
+  color: indianred;
+}
