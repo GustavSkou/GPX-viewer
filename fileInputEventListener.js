@@ -9,22 +9,30 @@ document
         const reader = new FileReader();
 
         reader.onload = function (event) {
-          const fileReader = event.target;
-          const route = fileToRoute(fileReader.result, file.name);
-          
-          if (MapHandler.instance.maps.has(route.name))
-            return
+          try {
+            const fileReader = event.target;
+            const route = fileToRoute(fileReader.result, file.name);
+            
+            if (route == null)
+              throw new Error("Format is not supported");
 
-          let routeDisplayElement = getRouteDisplayTemplate(route.name);
-          setInfoElements(route, routeDisplayElement);
-          addRouteDisplayElementToList(routeDisplayElement);
+            if (MapHandler.instance.maps.has(route.name))
+              throw new Error("Route has already been uploaded");
 
-          var map = MapHandler.instance.createMap(`${route.name}`);
+            let routeDisplayElement = getRouteDisplayTemplate(route.name);
+            setInfoElements(route, routeDisplayElement);
+            addRouteDisplayElementToList(routeDisplayElement);
 
-          const polygon = MapHandler.instance.drawRoute(route, map);
-          MapHandler.instance.setViewToRoute(polygon, map);
-          MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
-          MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+            var map = MapHandler.instance.createMap(`${route.name}`);
+
+            const polygon = MapHandler.instance.drawRoute(route, map);
+            MapHandler.instance.setViewToRoute(polygon, map);
+            MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
+            MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+          } catch (error) {
+            console.log(error.message)
+            //handle error
+          }
         };
 
         reader.readAsText(file);
@@ -47,7 +55,7 @@ function fileToRoute(fileContent, fileName) {
       return GPXHandler.parseGPXToRoute(fileContent);
 
     default:
-      break;
+      return null;
   }
 }
 
