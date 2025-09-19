@@ -1,4 +1,11 @@
-class GPXHandler {
+import { Segment } from './Segment.js';
+import { Point } from './Point.js';
+import { Route } from './Route.js';
+
+import { distance, gradient, speed } from './func.js';
+import { RouteType, Run, Ride } from './RouteType.js';
+
+export class GPXHandler {
   constructor() {}
 
   /**
@@ -30,7 +37,7 @@ class GPXHandler {
       GPXHandler.setRoutePts(route, trackPoints[i]);
       if (i == 0) continue;
 
-      let distanceBetweenPoints = Distance (
+      let distanceBetweenPoints = distance (
         route.points[i-1].latLngs[0], 
         route.points[i-1].latLngs[1], 
         route.points[i].latLngs[0], 
@@ -42,7 +49,7 @@ class GPXHandler {
       
       let speedBetweenPoints = 0;
       if ( route.isTimeValid() ) {
-        speedBetweenPoints = Speed (
+        speedBetweenPoints = speed (
           distanceBetweenPoints, 
           route.points[i-1].time, 
           route.points[i].time

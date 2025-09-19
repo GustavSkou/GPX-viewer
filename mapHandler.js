@@ -1,8 +1,11 @@
+import { Route } from "./Route";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css'; // Import Leaflet's CSS for proper styling
 
 /**
  * Facade for using Leftlet with the Route
  */
-class MapHandler {
+export class MapHandler {
   constructor() {
     if (MapHandler._instance) {
       return MapHandler._instance;
@@ -26,9 +29,9 @@ class MapHandler {
    */
   createMap(elementId) {
     var map = L.map(elementId, { zoomControl: false }).setView([0, 0], 19);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
     }).addTo(map);
     MapHandler.instance.maps.set(elementId, map); // save the Map to the maps map
     return map;

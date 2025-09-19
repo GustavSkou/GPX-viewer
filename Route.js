@@ -1,69 +1,12 @@
+import Segment from './Segment.js';
+import Point from './Point.js';
+import { RouteType, Ride, Run } from './RouteType.js';
+
 const _HOUR_MS = 60 * 60 * 1000;
 const _MINUTE_TO_MS = 60 * 1000;
 const _SECOND_TO_MS = 1000;
 
-class RouteType {
-  get iconUrl() {
-    return "icons\\route-icon.png";
-  }
-}
-class Ride extends RouteType {
-  get iconUrl() {
-    return "icons\\ride-icon.png";
-  }
-}
-class Run extends RouteType {
-  get iconUrl() {
-    return "icons\\run-icon.png"
-  }
-}
-/**
- * Point is a latitude and longitude "point"
- */
-class Point
-{
-  /**
-   * @param {string[]} latLngs 
-   * @param {Number} elevation 
-   * @param {Number} time 
-   */
-  constructor( 
-    latLngs = new Array(String),
-    elevation,
-    time = -1,
-  ) {
-    this.latLngs = latLngs;
-    this.elevation = elevation;
-    this.time = time;
-  }
-}
-
-/**
- * Segment is the line between two points on a Route
- */
-class Segment
-{
-  /**
-   * @param {Number} distance 
-   * @param {Number} speed 
-   * @param {Number} gradient 
-   */
-  constructor( 
-    distance,
-    speed,
-    gradient,
-  ) {
-    this.distance = distance;
-    this.speed = speed;
-    this.gradient = gradient;
-  }
-
-  toString() {
-    return `Dist: ${(this.distance * 1000).toFixed(2)}, Speed: ${this.speed.toFixed(2)}, grad:  ${this.gradient.toFixed(1)}`;
-  }
-}
-
-class Route {
+export class Route {
   /**
    * 
    * @param {String} name 
