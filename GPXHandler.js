@@ -63,6 +63,7 @@ class GPXHandler {
     
     if ( route.isTimeValid() ) {
       route.averageSpeed = accumulatedSpeed / (trackPoints.length - 1);
+      route.date = new Date(route.points[0].time);
     }
     //console.log(route.toString());
     return route;
@@ -75,9 +76,7 @@ class GPXHandler {
    */
   static getTrkPointTimeMS(trackPoint) {
     try {
-      return new Date(
-        trackPoint.getElementsByTagName("time")[0].textContent)
-        .getTime();
+      return new Date(trackPoint.getElementsByTagName("time")[0].textContent).getTime();
     } catch (error) {
       return -1;
     }

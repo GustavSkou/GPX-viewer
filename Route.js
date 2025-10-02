@@ -17,51 +17,6 @@ class Run extends RouteType {
     return "icons\\run-icon.png"
   }
 }
-/**
- * Point is a latitude and longitude "point"
- */
-class Point
-{
-  /**
-   * @param {string[]} latLngs 
-   * @param {Number} elevation 
-   * @param {Number} time 
-   */
-  constructor( 
-    latLngs = new Array(String),
-    elevation,
-    time = -1,
-  ) {
-    this.latLngs = latLngs;
-    this.elevation = elevation;
-    this.time = time;
-  }
-}
-
-/**
- * Segment is the line between two points on a Route
- */
-class Segment
-{
-  /**
-   * @param {Number} distance 
-   * @param {Number} speed 
-   * @param {Number} gradient 
-   */
-  constructor( 
-    distance,
-    speed,
-    gradient,
-  ) {
-    this.distance = distance;
-    this.speed = speed;
-    this.gradient = gradient;
-  }
-
-  toString() {
-    return `Dist: ${(this.distance * 1000).toFixed(2)}, Speed: ${this.speed.toFixed(2)}, grad:  ${this.gradient.toFixed(1)}`;
-  }
-}
 
 class Route {
   /**
@@ -75,6 +30,7 @@ class Route {
    * @param {Number} topSpeed 
    * @param {Point[]} points 
    * @param {Segment[]} segments 
+   * @param {Date} date
    */
   constructor(
     name = "",
@@ -84,7 +40,8 @@ class Route {
     averageSpeed = -1,
     topSpeed = -1,
     points = new Array(),
-    segments = new Array()
+    segments = new Array(),
+    date = new Date()
   ) {
     this.name = name;
     this.type = type;
@@ -94,6 +51,7 @@ class Route {
     this.topSpeed = topSpeed;
     this.points = points;
     this.segments = segments;
+    this.date = date;
   }
 
   get timeMS() {
@@ -132,6 +90,10 @@ class Route {
     ).join(":");
   }
 
+  get dateString() {
+    return this.date.toISOString();
+  }
+
   /**
    * updates the route's total elevation gain by comparing the newest elevation and the previous elevation
    */
@@ -154,6 +116,39 @@ class Route {
     } catch (error) {
       return false;
     }
+  }
+
+  getGpxString() {
+    let gpxContent =`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="mig" xmlns="http://www.topografix.com/GPX/1/1">\n <metadata>\n  <link href="https://gustavskou.github.io/GPX-viewer/"></link>\n  <time>${this.dateString}</time>\n </metadata>\n <trk>\n  <name>${this.name}</name>\n  <trkseg>`;
+
+    gpxContent += this.getTrkptString();
+    
+    gpxContent +=`\n  </trkseg>\n </trk>\n</gpx>`;
+    
+    return gpxContent;
+  }
+
+  getGpxBlob() {
+    const gpxContent = this.getGpxString();
+    const blob = new Blob([gpxContent], { type: "application/gpx+xml" });
+    return blob;
+  }
+
+  getGpxUrl() {
+    const blob = this.getGpxBlob();
+    const url = URL.createObjectURL(blob);
+    return url;
+  }
+
+  getTrkptString() {
+    let trkpts = "";
+    this.points.forEach(point => {
+      let latitude = point.latLngs[0];
+      let longitude = point.latLngs[1];
+      let elevation = point.elevation;
+
+      trkpts +=`\n   <trkpt lat="${latitude}" lon="${longitude}">\n    <ele>${elevation}</ele>\n   </trkpt>`});
+    return trkpts;
   }
 
   toString() {

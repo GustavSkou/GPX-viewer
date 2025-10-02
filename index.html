@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <title>GPX viewer</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="leftlet/leaflet.css" />
-    <script src="leftlet/leaflet.js"></script>
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
   </head>
 
   <body>
@@ -21,48 +21,55 @@
         <p>Works for .gpx files</p>
       </div>
 
-      <div id="routeDisplayList" class="routeDisplayList"></div>
-        
-      </div>
-    <script src="fileError.js"></script>
-    <script src="GPXHandler.js"></script> 
-    <script src="Route.js"></script>
-    <script src="mapHandler.js"></script>
-    <script src="fileInputEventListener.js"></script>
+      <div id="routeDisplayList" class="routeDisplayList"></div>  
+    </div>
+
+      <script src="Point.js"></script>
+      <script src="Segment.js"></script>
+      <script src="Route.js"></script>
+      <script src="fileError.js"></script>
+      <script src="GPXHandler.js"></script>
+      <script src="mapHandler.js"></script>
+      <script src="fileInputEventListener.js"></script>
   </body>
 
 </html>
 
 <template id="routeDisplayTemplate">
-    <div class="routeDisplay" id="routeDisplay">
+  <div class="routeDisplay" id="routeDisplay">
 
-        <ul class="infoPanel">
-            <li id="icon_li">
-                <img id="icon" class="routeTypeIcon">
-            </li>
-            <li id="name_li">
-                <h2 id="name"></h2>
-            </li>
-        </ul>
+    <ul class="infoPanel">
+        <li id="icon_li">
+            <img id="icon" class="routeTypeIcon">
+        </li>
+        <li id="name_li">
+            <h2 id="name"></h2>
+        </li>
+    </ul>
 
-        <ul class="infoPanel">
-            <li id="distance_li">
-                <p>Distance</p>
-                <div id="distance"></div>
-            </li>
-            <li id="elev_li">
-                <p>Elev gain</p>
-                <div id="elev"></div>
-            </li>
-            <li id="speed_li">
-                <p>Speed</p>
-                <div id="speed"></div>
-            </li>
-            <li id="time_li">
-                <p>Time</p>
-                <div id="time"></div>
-            </li>
-        </ul>
-        <div id="tempMapId" class="map"></div>
+    <ul class="infoPanel">
+        <li id="distance_li">
+            <p>Distance</p>
+            <div id="distance"></div>
+        </li>
+        <li id="elev_li">
+            <p>Elev gain</p>
+            <div id="elev"></div>
+        </li>
+        <li id="speed_li">
+            <p>Speed</p>
+            <div id="speed"></div>
+        </li>
+        <li id="time_li">
+            <p>Time</p>
+            <div id="time"></div>
+        </li>
+    </ul>
+    <div id="tempMapId" class="map"></div>
+    <div class="selection">
+      <a class="button" id="remove-a">remove</a>
+      <a class="button" id="download-a">download</a>
     </div>
+  </div>
+  
 </template>

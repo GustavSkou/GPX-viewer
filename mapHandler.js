@@ -1,4 +1,3 @@
-
 /**
  * Facade for using Leftlet with the Route
  */

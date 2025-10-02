@@ -2,7 +2,7 @@ document
   .getElementById("fileInput")
   .addEventListener("change", function (event) {
 
-    removefileErrorMessage();
+    removeErrorMessage();
 
     for (let i = 0; i < event.target.files.length; i++) {
     let file = event.target.files[i];
@@ -64,13 +64,15 @@ function setInfoElements(route, parent) {
   const elevGainLi = parent.querySelector("#elev_li");
   const speedLi = parent.querySelector("#speed_li");
   const timeLi = parent.querySelector("#time_li");
- 
+  
   const nameElement = parent.querySelector("#name");
   const iconElement = parent.querySelector("#icon");
   const distElement = parent.querySelector("#distance");
   const elevGainElement = parent.querySelector("#elev");
   const speedElement = parent.querySelector("#speed");
   const timeElement = parent.querySelector("#time");
+
+  const downloadA = parent.querySelector("#download-a");
 
   nameElement.textContent = route.name;
   iconElement.src = route.type.iconUrl;
@@ -85,6 +87,9 @@ function setInfoElements(route, parent) {
   elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
   speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
+
+  downloadA.href = route.getGpxUrl();
+  downloadA.download = `${route.name}.gpx`
 }
 
 /**
@@ -118,7 +123,7 @@ function fileErrorHandler(fileError) {
   }
 }
 
-function removefileErrorMessage() {
+function removeErrorMessage() {
   const error_p = document.getElementById("error_p");
   error_p.innerHTML = "";
 }
@@ -166,5 +171,3 @@ function Speed(distanceKM, startTimeMS, endTimeMS)
 function gradient(distanceKM, elevationGainedM) {
   return elevationGainedM / (distanceKM * 1000) * 100;
 }
-
-
