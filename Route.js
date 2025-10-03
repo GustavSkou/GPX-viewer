@@ -6,15 +6,24 @@ class RouteType {
   get iconUrl() {
     return "icons\\route-icon.png";
   }
+  toString() {
+    return "";
+  }
 }
 class Ride extends RouteType {
   get iconUrl() {
     return "icons\\ride-icon.png";
   }
+  toString() {
+    return "cycling";
+  }
 }
 class Run extends RouteType {
   get iconUrl() {
-    return "icons\\run-icon.png"
+    return "icons\\run-icon.png";
+  }
+  toString() {
+    return "running";
   }
 }
 
@@ -32,47 +41,24 @@ class Route {
    * @param {Segment[]} segments 
    * @param {Date} date
    */
-  constructor(
-    name,
-    type = new RouteType(),
-    distance,
-    elevationGain,
-    averageSpeed,
-    topSpeed,
-    points,
-    segments,
-    date
-  ) {
-    this.name = name;
-    this.type = type;
-    this.distance = distance;
-    this.elevationGain = elevationGain;
-    this.averageSpeed = averageSpeed;
-    this.topSpeed = topSpeed;
-    this.points = points;
-    this.segments = segments;
-    this.date = date;
-  }
-
   constructor (
     name,
     type = new RouteType(),
     points
-  ) 
-  {
+  ) {
     this.name = name;
     this.type = type;
     this.points = points;
 
-    this.distance;
-    this.elevationGain;
-    this.averageSpeed;
-    this.topSpeed;
-    this.segments;
-    this.date;
+    this.distance = 0;
+    this.elevationGain = 0;
+    this.averageSpeed = 0;
+    this.topSpeed = 0;
+    this.segments = new Array();
+    this.date = -1;
 
     let accumulatedSpeed = 0;
-    for (let i = 0; i < points.length - 1; i++) {
+    for (let i = 0; i < this.points.length - 1; i++) {
       if (i == 0) continue;
 
       let distanceBetweenPoints = Distance (
@@ -83,7 +69,7 @@ class Route {
       );
       
       this.distance += distanceBetweenPoints;
-      this.updateElevationGain();
+      this.updateElevationGain(i);
       
       let speedBetweenPoints = 0;
       // if the time is a valid time, speed can be calculated
@@ -101,7 +87,7 @@ class Route {
     }
     
     if ( this.isTimeValid() ) {
-      this.averageSpeed = accumulatedSpeed / (trackPoints.length - 1);
+      this.averageSpeed = accumulatedSpeed / (this.points.length - 1);
       this.date = new Date(this.points[0].time);
     }
   }
@@ -143,7 +129,12 @@ class Route {
   }
 
   get dateString() {
-    return this.date.toISOString();
+    try {
+      return this.date.toISOString();
+    } catch (error) {
+      return "";
+    }
+    
   }
 
   /**
@@ -164,13 +155,10 @@ class Route {
   /**
    * updates the route's total elevation gain by comparing the newest elevation and the previous elevation
    */
-  updateElevationGain()
+  updateElevationGain(index)
   {
-    const lastIndex = this.points.length - 1;
-    if (this.points.length < 2 ) return
-      
-    if (this.points[lastIndex].elevation > this.points[lastIndex-1].elevation)
-      this.elevationGain += this.points[lastIndex].elevation - this.points[lastIndex-1].elevation;
+    if (this.points[index].elevation > this.points[index-1].elevation)
+      this.elevationGain += this.points[index].elevation - this.points[index-1].elevation;
   }
 
   /**
@@ -186,10 +174,11 @@ class Route {
   }
 
   getGpxString() {
-    let gpxContent =`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="mig" xmlns="http://www.topografix.com/GPX/1/1">\n <metadata>\n  <link href="https://gustavskou.github.io/GPX-viewer/"></link>\n  <time>${this.dateString}</time>\n </metadata>\n <trk>\n  <name>${this.name}</name>\n  <trkseg>`;
+    const typeString = this.type.toString() != "" ? `<type>${this.type.toString()}</type>\n  ` : "";
+    const creator = "GPX-viewer";
+    let gpxContent =`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="${creator}" xmlns="http://www.topografix.com/GPX/1/1">\n <metadata>\n  <link href="https://gustavskou.github.io/GPX-viewer/"></link>\n  <time>${this.dateString}</time>\n </metadata>\n <trk>\n  <name>${this.name}</name>\n  ${typeString}<trkseg>`;
 
     gpxContent += this.getTrkptString();
-    
     gpxContent +=`\n  </trkseg>\n </trk>\n</gpx>`;
     
     return gpxContent;
@@ -213,8 +202,21 @@ class Route {
       let latitude = point.latLngs[0];
       let longitude = point.latLngs[1];
       let elevation = point.elevation;
+      let dateTimeString = "";
+      let heartRateString = "";
 
-      trkpts +=`\n   <trkpt lat="${latitude}" lon="${longitude}">\n    <ele>${elevation}</ele>\n   </trkpt>`});
+      if (point.time > -1) {
+        let dateTime = new Date(point.time);
+        dateTimeString = ` <time>${dateTime.toISOString()}</time>\n   `;
+      }
+
+      if (false) {
+      if (point.heartRate > -1) {
+        heartRateString = `\n    <extensions>\n     <gpxtpx:TrackPointExtension>\n      <gpxtpx:hr>${point.heartRate}</gpxtpx:hr>\n     </gpxtpx:TrackPointExtension>\n    </extensions>\n   `
+      }
+      } 
+
+      trkpts +=`\n   <trkpt lat="${latitude}" lon="${longitude}">\n    <ele>${elevation}</ele>\n   ${dateTimeString}${heartRateString}</trkpt>`});
     return trkpts;
   }
 
