@@ -53,17 +53,17 @@ class MapHandler {
   drawRouteSegments(route, map,)
   {
     for (let i = 0; i < route.points.length-1; i++) {
-      var segment = L.polyline(
-      [route.points[i].latLngs, route.points[i+1].latLngs], {
+      var segment = L.polyline( [route.points[i].latLngs, route.points[i+1].latLngs], {
         opacity: 0.5,
         color: "red",
         weight: 5
       }
       ).addTo(map);
 
-      segment.bindTooltip(
-        route.segments[i].toString()
-      );
+      if (route.segments[i] != null)
+        segment.bindTooltip(
+          route.segments[i].toString()
+        );
     }
   }
 

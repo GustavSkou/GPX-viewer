@@ -20,7 +20,7 @@ class GPXHandler {
    */
   static parseTrackToRoute(track) {
     const trackPoints = track.getElementsByTagName("trkpt"); // contains only the trkpt elements
-    const points = getPointArray(trackPoints);
+    const points = GPXHandler.getPointArray(trackPoints);
     const route = new Route ( 
       GPXHandler.getTrkName(track),
       GPXHandler.getTrkType(track),
@@ -37,10 +37,10 @@ class GPXHandler {
   static getPointArray(trackPoints) {
     const points = Array();
     for (let i = 0; i < trackPoints.length - 1; i++) {
-      const lat = trackPoint.getAttribute("lat");
-      const lon = trackPoint.getAttribute("lon");
-      const ele = parseFloat(trackPoint.getElementsByTagName("ele")[0].textContent);
-      const MS = GPXHandler.getTrkPointTimeMS(trackPoint)
+      const lat = trackPoints[i].getAttribute("lat");
+      const lon = trackPoints[i].getAttribute("lon");
+      const ele = parseFloat(trackPoints[i].getElementsByTagName("ele")[0].textContent);
+      const MS = GPXHandler.getTrkPointTimeMS(trackPoints[i])
 
       points.push( new Point (
           [lat, lon], 
@@ -48,7 +48,8 @@ class GPXHandler {
           MS
         )
       );      
-    }
+    };
+    return points;
   }
 
   /**
@@ -88,7 +89,7 @@ class GPXHandler {
       switch (trackName) {
         case "cycling":
           return new Ride();
-        case "run":
+        case "running":
           return new Run();
         default:
           return new RouteType();
