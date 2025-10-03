@@ -14,59 +14,41 @@ class GPXHandler {
   }
 
   /**
-   * Create a new instance of Route and sets attributes based on the <trk> element passed
+   * 
    * @param {Element} track 
    * @returns {Route}
    */
   static parseTrackToRoute(track) {
-    let accumulatedSpeed = 0;
     const trackPoints = track.getElementsByTagName("trkpt"); // contains only the trkpt elements
+    const points = getPointArray(trackPoints);
     const route = new Route ( 
       GPXHandler.getTrkName(track),
-      GPXHandler.getTrkType(track)
-    );
-
-    for (let i = 0; i < trackPoints.length - 1; i++) {
-      GPXHandler.setRoutePts(route, trackPoints[i]);
-      if (i == 0) continue;
-
-      let distanceBetweenPoints = Distance (
-        route.points[i-1].latLngs[0], 
-        route.points[i-1].latLngs[1], 
-        route.points[i].latLngs[0], 
-        route.points[i].latLngs[1] 
-      );
-      
-      route.distance += distanceBetweenPoints;
-      route.updateElevationGain();
-      
-      let speedBetweenPoints = 0;
-      if ( route.isTimeValid() ) {
-        speedBetweenPoints = Speed (
-          distanceBetweenPoints, 
-          route.points[i-1].time, 
-          route.points[i].time
-        );
-        route.topSpeed = speedBetweenPoints > route.topSpeed ? speedBetweenPoints : route.topSpeed;
-        accumulatedSpeed += speedBetweenPoints;
-      }
-
-      this.setRouteSegments(
-        route, 
-        distanceBetweenPoints, 
-        speedBetweenPoints,
-        gradient(
-          distanceBetweenPoints, route.points[i].elevation - route.points[i-1].elevation
-        )
-      );
-    }
-    
-    if ( route.isTimeValid() ) {
-      route.averageSpeed = accumulatedSpeed / (trackPoints.length - 1);
-      route.date = new Date(route.points[0].time);
-    }
-    //console.log(route.toString());
+      GPXHandler.getTrkType(track),
+      points
+    );  
     return route;
+  }
+
+  /**
+   * Creates a new Point instance and pushes it to the route's point array 
+   * @param {Array} latLngs
+   * @param {Array} ele  
+   */
+  static getPointArray(trackPoints) {
+    const points = Array();
+    for (let i = 0; i < trackPoints.length - 1; i++) {
+      const lat = trackPoint.getAttribute("lat");
+      const lon = trackPoint.getAttribute("lon");
+      const ele = parseFloat(trackPoint.getElementsByTagName("ele")[0].textContent);
+      const MS = GPXHandler.getTrkPointTimeMS(trackPoint)
+
+      points.push( new Point (
+          [lat, lon], 
+          ele, 
+          MS
+        )
+      );      
+    }
   }
 
   /**
@@ -114,35 +96,4 @@ class GPXHandler {
     } catch (error) {}
   }
 
-  /**
-   * Creates a new Point instance and pushes it to the route's point array
-   * @param {Route} route 
-   * @param {Element} trackPoint 
-   */
-  static setRoutePts(route, trackPoint) {
-    const lat = trackPoint.getAttribute("lat");
-    const lon = trackPoint.getAttribute("lon");
-    const ele = parseFloat(trackPoint.getElementsByTagName("ele")[0].textContent);
-    const MS = GPXHandler.getTrkPointTimeMS(trackPoint)
-    route.points.push( new Point (
-        [lat, lon], 
-        ele, 
-        MS
-      ));
-  }
-
-  /**
-   * @param {Route} route 
-   * @param {Number} distance 
-   * @param {Number} speed 
-   * @param {Number} gradient 
-   */
-  static setRouteSegments(route, distance, speed, gradient) {
-    route.segments.push ( new Segment (
-        distance, 
-        speed, 
-        gradient
-      )
-    )
-  }
 }

@@ -33,15 +33,15 @@ class Route {
    * @param {Date} date
    */
   constructor(
-    name = "",
+    name,
     type = new RouteType(),
-    distance = 0,
-    elevationGain = 0,
-    averageSpeed = -1,
-    topSpeed = -1,
-    points = new Array(),
-    segments = new Array(),
-    date = new Date()
+    distance,
+    elevationGain,
+    averageSpeed,
+    topSpeed,
+    points,
+    segments,
+    date
   ) {
     this.name = name;
     this.type = type;
@@ -52,6 +52,58 @@ class Route {
     this.points = points;
     this.segments = segments;
     this.date = date;
+  }
+
+  constructor (
+    name,
+    type = new RouteType(),
+    points
+  ) 
+  {
+    this.name = name;
+    this.type = type;
+    this.points = points;
+
+    this.distance;
+    this.elevationGain;
+    this.averageSpeed;
+    this.topSpeed;
+    this.segments;
+    this.date;
+
+    let accumulatedSpeed = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      if (i == 0) continue;
+
+      let distanceBetweenPoints = Distance (
+        this.points[i-1].latLngs[0], 
+        this.points[i-1].latLngs[1], 
+        this.points[i].latLngs[0], 
+        this.points[i].latLngs[1] 
+      );
+      
+      this.distance += distanceBetweenPoints;
+      this.updateElevationGain();
+      
+      let speedBetweenPoints = 0;
+      // if the time is a valid time, speed can be calculated
+      if ( this.isTimeValid() ) {
+        speedBetweenPoints = Speed (distanceBetweenPoints, this.points[i-1].time, this.points[i].time);
+        this.topSpeed = speedBetweenPoints > this.topSpeed ? speedBetweenPoints : this.topSpeed;
+        accumulatedSpeed += speedBetweenPoints;
+      }
+
+      this.setRouteSegments(
+        distanceBetweenPoints, 
+        speedBetweenPoints,
+        gradient(distanceBetweenPoints, this.points[i].elevation - this.points[i-1].elevation)
+      );
+    }
+    
+    if ( this.isTimeValid() ) {
+      this.averageSpeed = accumulatedSpeed / (trackPoints.length - 1);
+      this.date = new Date(this.points[0].time);
+    }
   }
 
   get timeMS() {
@@ -92,6 +144,21 @@ class Route {
 
   get dateString() {
     return this.date.toISOString();
+  }
+
+  /**
+   *
+   * @param {Number} distance 
+   * @param {Number} speed 
+   * @param {Number} gradient 
+   */
+  setRouteSegments(distance, speed, gradient) {
+    this.segments.push ( new Segment (
+        distance, 
+        speed, 
+        gradient
+      )
+    )
   }
 
   /**
