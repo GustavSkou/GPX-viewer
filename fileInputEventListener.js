@@ -4,57 +4,55 @@ document
 
     removeErrorMessage();
 
+    const mergeInput = document.getElementById("mergeInput");
+
+    const routePromises = [];
     for (let i = 0; i < event.target.files.length; i++) {
-    let file = event.target.files[i];
-
-        if (file) {
+      let file = event.target.files[i];
+      
+      routePromises.push(new Promise((resolve, reject) => { 
         const reader = new FileReader();
-
         reader.onload = function (event) {
           try {
             const fileReader = event.target;
-            const route = fileToRoute(fileReader.result, file.name);
+            const route = FileHandler.fileToRoute(fileReader.result, file.name);
             
-            if (MapHandler.instance.maps.has(route.name)) // route's "id" shouldn't be the name
-              throw new FileError(`${route.name} has already been uploaded`);
-
-            let routeDisplayElement = getRouteDisplayTemplate(route.name);
-            setInfoElements(route, routeDisplayElement);
-            addRouteDisplayElementToList(routeDisplayElement);
-
-            var map = MapHandler.instance.createMap(`${route.name}`);
-
-            const polygon = MapHandler.instance.drawRoute(route, map);
-            MapHandler.instance.setViewToRoute(polygon, map);
-            MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
-            MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
+            // check for dubs
+            if (MapHandler.instance.maps.has(route.name)) throw new FileError(`${route.name} has already been uploaded`);
+            
+            if (!mergeInput.checked) 
+              createRouteDisplayElement(route);
+            else 
+              resolve(route);
           }
           catch (error) {
             fileErrorHandler(error);
           }
-        };
+          
+        }
+        reader.onerror = reject;
         reader.readAsText(file);
+      }));
+    }
+
+    //waits for all onload processes in routePromises to finish
+    Promise.all(routePromises).then(results => {
+      if (mergeInput.checked) {
+        const mergedRoute = RouteMerger.merge(results);
+        createRouteDisplayElement(mergedRoute);
       }
-    }   
   });
+});
 
-/**
- * 
- * @param {String} fileContent 
- * @param {String} fileName 
- * @returns {Route}
- */
-function fileToRoute(fileContent, fileName) {
-  const lastDotIndex = fileName.lastIndexOf(".");
-  const fileExtension = fileName.substring(lastDotIndex);
-
-  switch (fileExtension) {
-    case ".gpx":
-      return GPXHandler.parseGPXToRoute(fileContent);
-
-    default:
-      throw new FileError(`Format ${fileExtension} is not supported`);
-  }
+function createRouteDisplayElement(route) {
+  let routeDisplayElement = getRouteDisplayTemplate(route.name);
+  setInfoElements(route, routeDisplayElement);
+  addRouteDisplayElementToList(routeDisplayElement);
+  var map = MapHandler.instance.createMap(`${route.name}`);
+  const polygon = MapHandler.instance.drawRoute(route, map);
+  MapHandler.instance.setViewToRoute(polygon, map);
+  MapHandler.instance.setStartPoint(route.points[0].latLngs, map);
+  MapHandler.instance.setEndPoint(route.points[route.points.length-1].latLngs, map);
 }
 
 function setInfoElements(route, parent) {

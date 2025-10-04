@@ -21,6 +21,23 @@ p {
 
 form {
   padding: 20px;
+  margin: 0px;
+}
+
+.uploadMenu {
+  position: sticky;
+  align-items: center;
+  top: 0;
+  left: 0;
+  height: fit-content;
+  width: fit-content;
+}
+
+#mergeInput {
+  height: 20px;
+  width: 20px;
+  margin-left: 0px;
+  vertical-align: middle;
 }
 
 .container {
@@ -53,18 +70,11 @@ form {
 }
 
 .infoPanel > li {
-  padding-right: 10px;
+  padding-right: 15px;
   list-style-type: none;
   display: none;
 }
-.uploadMenu {
-  position: sticky;
-  align-items: center;
-  top: 0;
-  left: 0;
-  height: fit-content;
-  width: fit-content;
-}
+
 
 .routeTypeIcon {
   height: 24px;
