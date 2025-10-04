@@ -1,2 +1,2 @@
 # GPX-viewer
-Display GPX files using Leaflet
+Upload and merge your GPX files
