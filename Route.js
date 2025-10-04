@@ -99,7 +99,7 @@ class Route {
       this.date = new Date(this.points[0].time);
     }
 
-    if (accumulatedHeartRate > 0) {
+    if (this.points[0].heartRate > -1 && this.points[this.points.length-1].heartRate > -1) {
       this.averageHeartRate = accumulatedHeartRate / accumulatedHeartRateCount;
     }
   }
@@ -250,8 +250,6 @@ class Route {
     const url = URL.createObjectURL(blob);
     return url;
   }
-
-  
 
   toString() {
     return `${this.distanceString} ${this.elevationGainString} ${this.averageSpeedString} ${this.timeString}`
