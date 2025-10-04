@@ -40,12 +40,14 @@ class GPXHandler {
       const lat = trackPoints[i].getAttribute("lat");
       const lon = trackPoints[i].getAttribute("lon");
       const ele = parseFloat(trackPoints[i].getElementsByTagName("ele")[0].textContent);
-      const MS = GPXHandler.getTrkPointTimeMS(trackPoints[i])
+      const MS = GPXHandler.getTrkPointTimeMS(trackPoints[i]);
+      const heartRate = GPXHandler.getTrkPointHeartRate(trackPoints[i]);
 
       points.push( new Point (
           [lat, lon], 
           ele, 
-          MS
+          MS,
+          heartRate
         )
       );      
     };
@@ -60,6 +62,16 @@ class GPXHandler {
   static getTrkPointTimeMS(trackPoint) {
     try {
       return new Date(trackPoint.getElementsByTagName("time")[0].textContent).getTime();
+    } catch (error) {
+      return -1;
+    }
+  }
+
+  static getTrkPointHeartRate(trackPoint) {
+    try {
+      const heartRateString = trackPoint.getElementsByTagName("gpxtpx:hr")[0].textContent;
+      const heartRate = parseInt(heartRateString);
+      return heartRate;
     } catch (error) {
       return -1;
     }

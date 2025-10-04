@@ -64,13 +64,15 @@ function setInfoElements(route, parent) {
   const elevGainLi = parent.querySelector("#elev_li");
   const speedLi = parent.querySelector("#speed_li");
   const timeLi = parent.querySelector("#time_li");
-  
+  const HrLi = parent.querySelector("#heartRate_li")
+
   const nameElement = parent.querySelector("#name");
   const iconElement = parent.querySelector("#icon");
   const distElement = parent.querySelector("#distance");
   const elevGainElement = parent.querySelector("#elev");
   const speedElement = parent.querySelector("#speed");
   const timeElement = parent.querySelector("#time");
+  const HrElement = parent.querySelector("#heartRate");
 
   const downloadA = parent.querySelector("#download-a");
 
@@ -80,6 +82,7 @@ function setInfoElements(route, parent) {
   elevGainElement.textContent = route.elevationGainString;
   speedElement.textContent = route.averageSpeedString;
   timeElement.textContent = route.timeString;
+  HrElement.textContent = route.averageHeartRateString;
 
   nameLi.style.display = route.name != "" ? "block" : "none";
   iconLi.style.display = "flex";
@@ -87,6 +90,7 @@ function setInfoElements(route, parent) {
   elevGainLi.style.display = route.elevationGain >= 0 ? "block" : "none";
   speedLi.style.display = route.averageSpeed > 0 ? "block" : "none";
   timeLi.style.display = route.timeMS > 0 ? "block" : "none";
+  HrLi.style.display = route.averageHeartRate > 0 ? "block" : "none";
 
   downloadA.href = route.getGpxUrl();
   downloadA.download = `${route.name}.gpx`

@@ -56,9 +56,17 @@ class Route {
     this.topSpeed = 0;
     this.segments = new Array();
     this.date = -1;
+    this.averageHeartRate = -1;
 
     let accumulatedSpeed = 0;
+    let accumulatedHeartRate = 0;
+    let accumulatedHeartRateCount = 0;
     for (let i = 0; i < this.points.length - 1; i++) {
+      if (this.points[i].heartRate > -1) {
+        accumulatedHeartRate += this.points[i].heartRate
+        accumulatedHeartRateCount++;
+      }
+
       if (i == 0) continue;
 
       let distanceBetweenPoints = Distance (
@@ -89,6 +97,10 @@ class Route {
     if ( this.isTimeValid() ) {
       this.averageSpeed = accumulatedSpeed / (this.points.length - 1);
       this.date = new Date(this.points[0].time);
+    }
+
+    if (accumulatedHeartRate > 0) {
+      this.averageHeartRate = accumulatedHeartRate / accumulatedHeartRateCount;
     }
   }
 
@@ -135,6 +147,10 @@ class Route {
       return "";
     }
     
+  }
+
+  get averageHeartRateString() {
+    return `${this.averageHeartRate.toFixed(0)}`
   }
 
   /**
@@ -184,18 +200,6 @@ class Route {
     return gpxContent;
   }
 
-  getGpxBlob() {
-    const gpxContent = this.getGpxString();
-    const blob = new Blob([gpxContent], { type: "application/gpx+xml" });
-    return blob;
-  }
-
-  getGpxUrl() {
-    const blob = this.getGpxBlob();
-    const url = URL.createObjectURL(blob);
-    return url;
-  }
-
   getTrkptString() {
     let trkpts = "";
     this.points.forEach(point => {
@@ -210,15 +214,27 @@ class Route {
         dateTimeString = ` <time>${dateTime.toISOString()}</time>\n   `;
       }
 
-      if (false) {
       if (point.heartRate > -1) {
-        heartRateString = `\n    <extensions>\n     <gpxtpx:TrackPointExtension>\n      <gpxtpx:hr>${point.heartRate}</gpxtpx:hr>\n     </gpxtpx:TrackPointExtension>\n    </extensions>\n   `
+        heartRateString = ` <extensions>\n     <gpxtpx:TrackPointExtension>\n      <gpxtpx:hr>${point.heartRate}</gpxtpx:hr>\n     </gpxtpx:TrackPointExtension>\n    </extensions>\n   `
       }
-      } 
 
       trkpts +=`\n   <trkpt lat="${latitude}" lon="${longitude}">\n    <ele>${elevation}</ele>\n   ${dateTimeString}${heartRateString}</trkpt>`});
     return trkpts;
   }
+
+  getGpxBlob() {
+    const gpxContent = this.getGpxString();
+    const blob = new Blob([gpxContent], { type: "application/gpx+xml" });
+    return blob;
+  }
+
+  getGpxUrl() {
+    const blob = this.getGpxBlob();
+    const url = URL.createObjectURL(blob);
+    return url;
+  }
+
+  
 
   toString() {
     return `${this.distanceString} ${this.elevationGainString} ${this.averageSpeedString} ${this.timeString}`
