@@ -142,15 +142,33 @@ class Route {
 
   get dateString() {
     try {
-      return this.date.toISOString();
+      // remove unnecessary values from the date
+      const ISODateString = this.date.toISOString();
+      const dateStrings = ISODateString.split('.');
+      return `${dateStrings[0]}Z`;
     } catch (error) {
       return "";
     }
-    
   }
 
   get averageHeartRateString() {
     return `${this.averageHeartRate.toFixed(0)}`
+  }
+
+  getPointDateString(point) {
+    if (point.time == -1)
+      return "";
+
+    try {
+      // remove unnecessary values from the date
+      const time = point.time;
+      const date = new Date(time);
+      const ISODateString = date.toISOString();
+      const dateStrings = ISODateString.split('.');
+      return `${dateStrings[0]}Z`;
+    } catch (error) {
+      return "";
+    }
   }
 
   /**
@@ -210,8 +228,7 @@ class Route {
       let heartRateString = "";
 
       if (point.time > -1) {
-        let dateTime = new Date(point.time);
-        dateTimeString = ` <time>${dateTime.toISOString()}</time>\n   `;
+        dateTimeString = ` <time>${this.getPointDateString(point)}</time>\n   `;
       }
 
       if (point.heartRate > -1) {
