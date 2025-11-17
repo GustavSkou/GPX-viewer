@@ -24,12 +24,9 @@ class MapHandler {
    * @returns {L.Map}
    */
   createMap(elementId) {
-    var map = L.map(elementId, { zoomControl: false }).setView([0, 0], 19);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-    MapHandler.instance.maps.set(elementId, map); // save the Map to the maps map
+    var map = L.map(elementId, { zoomControl: false }).setView([0, 0], 15);
+    // Don't add any tile layer
+    MapHandler.instance.maps.set(elementId, map);
     return map;
   }
 
